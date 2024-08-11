@@ -94,7 +94,8 @@ func (vm *VM) Run() error {
 			vm.currentFrame().ip += 3
 			fn, ok := vm.constants[constIndex].(*object.CompiledFunction)
 			if !ok {
-				return fmt.Errorf("cannot create a closure over anything except CompiledFunction, got=%T", vm.constants[constIndex])
+				return fmt.Errorf("cannot create a closure over anything except CompiledFunction, got=%T",
+					vm.constants[constIndex])
 			}
 			free := make([]object.Object, numFree)
 			for i := 0; i < numFree; i++ {
@@ -105,23 +106,19 @@ func (vm *VM) Run() error {
 				return err
 			}
 		case code.OpTrue:
-			err := vm.push(TRUE)
-			if err != nil {
+			if err := vm.push(TRUE); err != nil {
 				return err
 			}
 		case code.OpFalse:
-			err := vm.push(FALSE)
-			if err != nil {
+			if err := vm.push(FALSE); err != nil {
 				return err
 			}
 		case code.OpNull:
-			err := vm.push(NULL)
-			if err != nil {
+			if err := vm.push(NULL); err != nil {
 				return err
 			}
 		case code.OpAdd, code.OpSub, code.OpMul, code.OpDiv, code.OpEq, code.OpNeq, code.OpLessThan, code.OpLessThanEq:
-			err := vm.executeInfixBinaryOp(op)
-			if err != nil {
+			if err := vm.executeInfixBinaryOp(op); err != nil {
 				return err
 			}
 		case code.OpBang:
@@ -142,8 +139,7 @@ func (vm *VM) Run() error {
 				return fmt.Errorf("type mismatch, cannot prefix %T (%+v) with -",
 					obj, obj)
 			}
-			err := vm.push(&object.Integer{Value: -1 * intObj.Value})
-			if err != nil {
+			if err := vm.push(&object.Integer{Value: -1 * intObj.Value}); err != nil {
 				return err
 			}
 		case code.OpPop:
@@ -225,7 +221,7 @@ func (vm *VM) Run() error {
 				key := vm.pop()
 				stringKey, ok := key.(*object.String)
 				if !ok {
-					return fmt.Errorf("type mismatch, cannot use an instance of type %T (%+v) as a hash key, can only use string",
+					return fmt.Errorf("cannot use an instance of type %T (%+v) as a hash key",
 						key, key)
 				}
 				hash[stringKey.Value] = value
@@ -241,7 +237,8 @@ func (vm *VM) Run() error {
 			case object.Array:
 				intIdx, ok := idxObj.(*object.Integer)
 				if !ok {
-					return fmt.Errorf("type mismatch, cannot use an instance of type %T (%+v) as an array index, can only use integer", idxObj, idxObj)
+					return fmt.Errorf("cannot use an instance of type %T (%+v) as an array index",
+						idxObj, idxObj)
 				}
 				arr := []object.Object(container)
 				if 0 <= intIdx.Value && int(intIdx.Value) < len(arr) {
@@ -250,12 +247,14 @@ func (vm *VM) Run() error {
 					}
 				} else {
 					vm.push(NULL)
-					return fmt.Errorf("index %d is out of bounds for an array with length %d", intIdx.Value, len(arr))
+					return fmt.Errorf("index %d is out of bounds for an array with length %d",
+						intIdx.Value, len(arr))
 				}
 			case object.Hash:
 				stringIdx, ok := idxObj.(*object.String)
 				if !ok {
-					return fmt.Errorf("type mismatch, cannot use an instance of type %T (%+v) as a hash index, can only use string", idxObj, idxObj)
+					return fmt.Errorf("cannot use an instance of type %T (%+v) as a hash index",
+						idxObj, idxObj)
 				}
 				hash := map[string]object.Object(container)
 				val, ok := hash[stringIdx.Value]
@@ -267,7 +266,8 @@ func (vm *VM) Run() error {
 					return err
 				}
 			default:
-				return fmt.Errorf("type mismatch, cannot index into an instance of type %T (%+v)", container, container)
+				return fmt.Errorf("cannot index into an instance of type %T (%+v)",
+					container, container)
 			}
 		case code.OpReturnValue:
 			returnValue := vm.pop()

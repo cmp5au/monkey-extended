@@ -69,6 +69,9 @@ func TestConditionals(t *testing.T) {
 
 func TestGlobalLetStatements(t *testing.T) {
 	tests := []vmTestCase{
+		{"let one;", NULL},
+		{"let one; one", NULL},
+		{"let one = 1;", NULL},
 		{"let one = 1; one", 1},
 		{"let one = 1; let two = 2; one + two", 3},
 		{"let one = 1; let two = one + one; one + two", 3},
@@ -533,6 +536,14 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 		if err != nil {
 			t.Fatalf("compiler error: %s", err)
 		}
+
+//		fmt.Printf("instructions: %s\n", c.Bytecode().Instructions)
+//		fmt.Println()
+//		fmt.Println("[")
+//		for _, c := range c.Bytecode().Constants {
+//			fmt.Printf("%+v\n", c)
+//		}
+//		fmt.Println("]")
 
 		vm := New(c.Bytecode())
 		if err = vm.Run(); err != nil {

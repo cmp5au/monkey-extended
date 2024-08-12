@@ -92,6 +92,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 				return err
 			}
 		}
+		if len(node.Statements) == 0 {
+			c.emit(code.OpNull)
+			c.emit(code.OpPop)
+		}
 	case *ast.ExpressionStatement:
 		err := c.Compile(node.Expression)
 		if err != nil {
@@ -103,7 +107,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if !ok || symbol.Scope == FunctionScope {
 			symbol = c.symbolTable.Define(node.Identifier.Value)
 		}
-		if err := c.Compile(node.Rhs); err != nil {
+		if node.Rhs == nil {
+			c.emit(code.OpNull)
+		} else if err := c.Compile(node.Rhs); err != nil {
 			return err
 		}
 		if symbol.Scope == GlobalScope {
@@ -111,6 +117,8 @@ func (c *Compiler) Compile(node ast.Node) error {
 		} else {
 			c.emit(code.OpSetLocal, symbol.Index)
 		}
+		c.emit(code.OpNull)
+		c.emit(code.OpPop)
 	case *ast.AssignmentStatement:
 		symbol, ok := c.symbolTable.Resolve(node.Identifier.Value, true)
 		if !ok {
@@ -133,6 +141,8 @@ func (c *Compiler) Compile(node ast.Node) error {
 		default:
 			return fmt.Errorf("unknown scope: %s", symbol.Scope)
 		}
+		c.emit(code.OpNull)
+		c.emit(code.OpPop)
 	case *ast.Identifier:
 		symbol, ok := c.symbolTable.Resolve(node.Value, true)
 		if !ok {
@@ -200,6 +210,8 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 		c.controlFlow.breakStatementStack = c.controlFlow.breakStatementStack[:len(c.controlFlow.breakStatementStack)-1]
 		c.controlFlow.continueStatementStack = c.controlFlow.continueStatementStack[:len(c.controlFlow.continueStatementStack)-1]
+		c.emit(code.OpNull)
+		c.emit(code.OpPop)
 	case *ast.BreakStatement:
 		if len(c.controlFlow.breakStatementStack) == 0 {
 			return fmt.Errorf("cannot break without an enclosing `for` loop")

@@ -189,6 +189,10 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		Value: p.curToken.Literal,
 	}
 
+	if p.peekToken.Type == token.SEMICOLON {
+		return ls
+	}
+
 	if !p.expectPeek(token.ASSIGN) {
 		return nil
 	}

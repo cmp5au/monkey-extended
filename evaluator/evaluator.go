@@ -123,9 +123,12 @@ func evaluateBlockStatement(block *ast.BlockStatement, env *object.Environment) 
 }
 
 func evaluateLetStatement(letStmt *ast.LetStatement, env *object.Environment) object.Object {
-	obj := Evaluate(letStmt.Rhs, env)
-	if isError(obj) {
-		return obj
+	obj := object.Object(NULL)
+	if letStmt.Rhs != nil {
+		obj = Evaluate(letStmt.Rhs, env)
+		if isError(obj) {
+			return obj
+		}
 	}
 	env.Set(letStmt.Identifier.Value, obj, true)
 	return NULL

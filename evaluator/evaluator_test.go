@@ -227,6 +227,8 @@ func TestErrorHandling(t *testing.T) {
 
 func TestLetStatements(t *testing.T) {
 	tests := []evaluatorTest{
+		{"let a;", nil},
+		{"let a; a;", nil},
 		{"let a = 5;", nil},
 		{"let a = 5; a;", 5},
 		{"let a = 5 * 5; a;", 25},

@@ -104,6 +104,8 @@ func TestEvalHashExpression(t *testing.T) {
 			},
 		},
 		{`{"a": 1, "b": 2}["b"]`, 2},
+		{`{1: {"c": 3}}[1]`, map[string]object.Object{"c": &object.Integer{3}}},
+		{`{true: [1, 2, 3]}[true]`, []int{1, 2, 3}},
 	}
 
 	runEvaluatorTests(t, tests)

@@ -26,3 +26,7 @@ func (b *Boolean) Hash() HashKey {
 	}
 	return HashKey{Type: b.Type(), Value: value}
 }
+
+func (n *Null) Hash() HashKey {
+	return HashKey{Type: n.Type(), Value: 0}
+}

@@ -114,6 +114,8 @@ func TestHashLiterals(t *testing.T) {
 				"aa": &object.Integer{Value: 4},
 			},
 		},
+		{`{1: {"c": 3}}[1]`, map[string]object.Object{"c": &object.Integer{3}}},
+		{`{true: [1, 2, 3]}[true]`, []int{1, 2, 3}},
 	}
 
 	runVmTests(t, tests)
@@ -121,88 +123,88 @@ func TestHashLiterals(t *testing.T) {
 
 func TestFunctions(t *testing.T) {
 	tests := []vmTestCase{
-//		{
-//			input: `
-//			let fivePlusTen = fn() { 5 + 10; };
-//			fivePlusTen();
-//			`,
-//			expected: 15,
-//		},
-//		{
-//			input: `
-//			let one = fn() { let one = 1; one };
-//			one();
-//			`,
-//			expected: 1,
-//		},
-//		{
-//			input: `
-//			let oneAndTwo = fn() { let one = 1; let two = 2; one + two; };
-//			oneAndTwo();
-//			`,
-//			expected: 3,
-//		},
-//		{
-//			input: `
-//			let oneAndTwo = fn() { let one = 1; let two = 2; one + two; };
-//			let threeAndFour = fn() { let three = 3; let four = 4; three + four; };
-//			threeAndFour() - oneAndTwo();
-//			`,
-//			expected: 4,
-//		},
-//		{
-//			input: `
-//			let firstFoobar = fn() { let foobar = 50; foobar; };
-//			let secondFoobar = fn() { let foobar = 100; foobar; };
-//			firstFoobar() + secondFoobar();
-//			`,
-//			expected: 150,
-//		},
-//		{
-//			input: `
-//			let globalSeed = 50;
-//			let minusOne = fn() {
-//				let num = 1;
-//				globalSeed - num;
-//			}
-//			let minusTwo = fn() {
-//				let num = 2;
-//				globalSeed - num;
-//			}
-//			minusOne() + minusTwo();
-//			`,
-//			expected: 97,
-//		},
-//		{
-//			input: `
-//			let identity = fn(a) { a; };
-//			identity(5);
-//			`,
-//			expected: 5,
-//		},
-//		{
-//			input: `
-//			let add = fn(a, b) { a + b; };
-//			add(34, 35);
-//			`,
-//			expected: 69,
-//		},
-//		{
-//			input: `
-//			let globalNum = 10;
-//			let sum = fn(a, b) {
-//				let c = a + b;
-//				c + globalNum;
-//			};
-//
-//			let outer = fn() {
-//				sum(1, 2) + sum(3, 4) + globalNum;
-//			};
-//
-//			outer() + globalNum;
-//			`,
-//			expected: 50,
-//		},
+		{
+			input: `
+			let fivePlusTen = fn() { 5 + 10; };
+			fivePlusTen();
+			`,
+			expected: 15,
+		},
+		{
+			input: `
+			let one = fn() { let one = 1; one };
+			one();
+			`,
+			expected: 1,
+		},
+		{
+			input: `
+			let oneAndTwo = fn() { let one = 1; let two = 2; one + two; };
+			oneAndTwo();
+			`,
+			expected: 3,
+		},
+		{
+			input: `
+			let oneAndTwo = fn() { let one = 1; let two = 2; one + two; };
+			let threeAndFour = fn() { let three = 3; let four = 4; three + four; };
+			threeAndFour() - oneAndTwo();
+			`,
+			expected: 4,
+		},
+		{
+			input: `
+			let firstFoobar = fn() { let foobar = 50; foobar; };
+			let secondFoobar = fn() { let foobar = 100; foobar; };
+			firstFoobar() + secondFoobar();
+			`,
+			expected: 150,
+		},
+		{
+			input: `
+			let globalSeed = 50;
+			let minusOne = fn() {
+				let num = 1;
+				globalSeed - num;
+			}
+			let minusTwo = fn() {
+				let num = 2;
+				globalSeed - num;
+			}
+			minusOne() + minusTwo();
+			`,
+			expected: 97,
+		},
+		{
+			input: `
+			let identity = fn(a) { a; };
+			identity(5);
+			`,
+			expected: 5,
+		},
+		{
+			input: `
+			let add = fn(a, b) { a + b; };
+			add(34, 35);
+			`,
+			expected: 69,
+		},
+		{
+			input: `
+			let globalNum = 10;
+			let sum = fn(a, b) {
+				let c = a + b;
+				c + globalNum;
+			};
+
+			let outer = fn() {
+				sum(1, 2) + sum(3, 4) + globalNum;
+			};
+
+			outer() + globalNum;
+			`,
+			expected: 50,
+		},
 		{
 			input: `fn(){}()`,
 			expected: NULL,

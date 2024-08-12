@@ -136,17 +136,19 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 func (p *Parser) parseStatement() ast.Statement {
 	var stmt ast.Statement
-	switch p.curToken.Type {
-	case token.LET:
+	switch {
+	case p.curToken.Type == token.LET:
 		stmt = p.parseLetStatement()
-	case token.RETURN:
+	case p.curToken.Type == token.RETURN:
 		stmt = p.parseReturnStatement()
-	case token.FOR:
+	case p.curToken.Type == token.FOR:
 		stmt = p.parseForStatement()
-	case token.BREAK:
+	case p.curToken.Type == token.BREAK:
 		stmt = p.parseBreakStatement()
-	case token.CONTINUE:
+	case p.curToken.Type == token.CONTINUE:
 		stmt = p.parseContinueStatement()
+	case p.curToken.Type == token.IDENT && p.peekToken.Type == token.ASSIGN:
+		stmt = p.parseAssignmentStatement()
 	default:
 		stmt = p.parseExpressionStatement()
 	}
@@ -201,6 +203,25 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		return nil
 	}
 	return ls
+}
+
+func (p *Parser) parseAssignmentStatement() *ast.AssignmentStatement {
+	as := &ast.AssignmentStatement{
+		Identifier: &ast.Identifier{p.curToken, p.curToken.Literal},
+		Token: p.curToken,
+	}
+
+	if !p.expectPeek(token.ASSIGN) {
+		return nil
+	}
+	p.nextToken()
+
+	if expr := p.parseExpression(LOWEST); expr != nil {
+		as.Rhs = expr
+	} else {
+		return nil
+	}
+	return as
 }
 
 func (p *Parser) parseReturnStatement() *ast.ReturnStatement {

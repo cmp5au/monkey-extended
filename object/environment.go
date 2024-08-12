@@ -26,14 +26,11 @@ func (e *Environment) Get(name string) (Object, bool) {
 }
 
 func (e *Environment) Set(name string, val Object, setIfAbsent bool) Object {
-	if setIfAbsent {
-		e.store[name] = val
-		return val
-	}
-
 	_, ok := e.Get(name)
-	if !ok && e.parent != nil {
+	if !setIfAbsent && !ok && e.parent != nil {
 		return e.parent.Set(name, val, setIfAbsent)
 	}
+
+	e.store[name] = val
 	return val
 }

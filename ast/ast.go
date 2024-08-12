@@ -49,7 +49,6 @@ type LetStatement struct {
 }
 
 func (l *LetStatement) TokenLiteral() string {
-	// fmt.Printf("let statement = %+v\n", l)
 	return l.Token.Literal
 }
 
@@ -69,6 +68,29 @@ func (l *LetStatement) String() string {
 }
 
 func (l *LetStatement) statementNode() {}
+
+type AssignmentStatement struct {
+	*Identifier
+	Token token.Token
+	Rhs Expression
+}
+
+func (a *AssignmentStatement) TokenLiteral() string {
+	return a.Token.Literal
+}
+
+func (a *AssignmentStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(a.Identifier.String())
+	out.WriteString(" = ")
+	out.WriteString(a.Rhs.String())
+	out.WriteString(";")
+
+	return out.String()
+}
+
+func (a *AssignmentStatement) statementNode() {}
 
 type Identifier struct {
 	Token token.Token

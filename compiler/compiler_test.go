@@ -472,7 +472,7 @@ func TestFunctionCalls(t *testing.T) {
 				1,
 				[]code.Instructions{
 					code.Make(code.OpConstant, 0),
-					code.Make(code.OpSetLocal, 0),
+					code.Make(code.OpSetLocal, 0, 0),
 					code.Make(code.OpGetLocal, 0),
 					code.Make(code.OpReturnValue),
 				},
@@ -579,7 +579,7 @@ func TestLetStatementScopes(t *testing.T) {
 				55,
 				[]code.Instructions{
 					code.Make(code.OpConstant, 0),
-					code.Make(code.OpSetLocal, 0),
+					code.Make(code.OpSetLocal, 0, 0),
 					code.Make(code.OpGetLocal, 0),
 					code.Make(code.OpReturnValue),
 				},
@@ -602,9 +602,9 @@ func TestLetStatementScopes(t *testing.T) {
 				77,
 				[]code.Instructions{
 					code.Make(code.OpConstant, 0),
-					code.Make(code.OpSetLocal, 0),
+					code.Make(code.OpSetLocal, 0, 0),
 					code.Make(code.OpConstant, 1),
-					code.Make(code.OpSetLocal, 1),
+					code.Make(code.OpSetLocal, 1, 0),
 					code.Make(code.OpGetLocal, 0),
 					code.Make(code.OpGetLocal, 1),
 					code.Make(code.OpAdd),
@@ -740,7 +740,8 @@ func TestClosures(t *testing.T) {
 
 					fn() {
 						let c = 88;
-
+						a = a + 1;
+						b = b + 1;
 						global + a + b + c;
 					}
 				}
@@ -751,9 +752,19 @@ func TestClosures(t *testing.T) {
 				66,
 				77,
 				88,
+				1,
+				1,
 				[]code.Instructions{
 					code.Make(code.OpConstant, 3),
-					code.Make(code.OpSetLocal, 0),
+					code.Make(code.OpSetLocal, 0, 0),
+					code.Make(code.OpGetFree, 0),
+					code.Make(code.OpConstant, 4),
+					code.Make(code.OpAdd),
+					code.Make(code.OpSetLocal, 0, 2),
+					code.Make(code.OpGetFree, 1),
+					code.Make(code.OpConstant, 5),
+					code.Make(code.OpAdd),
+					code.Make(code.OpSetLocal, 0, 1),
 					code.Make(code.OpGetGlobal, 0),
 					code.Make(code.OpGetFree, 0),
 					code.Make(code.OpAdd),
@@ -765,24 +776,24 @@ func TestClosures(t *testing.T) {
 				},
 				[]code.Instructions{
 					code.Make(code.OpConstant, 2),
-					code.Make(code.OpSetLocal, 0),
+					code.Make(code.OpSetLocal, 0, 0),
 					code.Make(code.OpGetFree, 0),
 					code.Make(code.OpGetLocal, 0),
-					code.Make(code.OpClosure, 4, 2),
+					code.Make(code.OpClosure, 6, 2),
 					code.Make(code.OpReturnValue),
 				},
 				[]code.Instructions{
 					code.Make(code.OpConstant, 1),
-					code.Make(code.OpSetLocal, 0),
+					code.Make(code.OpSetLocal, 0, 0),
 					code.Make(code.OpGetLocal, 0),
-					code.Make(code.OpClosure, 5, 1),
+					code.Make(code.OpClosure, 7, 1),
 					code.Make(code.OpReturnValue),
 				},
 			},
 			expectedInstructions: []code.Instructions{
 				code.Make(code.OpConstant, 0),
 				code.Make(code.OpSetGlobal, 0),
-				code.Make(code.OpClosure, 6, 0),
+				code.Make(code.OpClosure, 8, 0),
 				code.Make(code.OpPop),
 			},
 		},
@@ -840,7 +851,7 @@ func TestRecursiveFunctions(t *testing.T) {
 				1,
 				[]code.Instructions{
 					code.Make(code.OpClosure, 1, 0),
-					code.Make(code.OpSetLocal, 0),
+					code.Make(code.OpSetLocal, 0, 0),
 					code.Make(code.OpGetLocal, 0),
 					code.Make(code.OpConstant, 2),
 					code.Make(code.OpCall, 1),
@@ -982,7 +993,7 @@ func testInstructions(idx int, expected []code.Instructions, actual code.Instruc
 
 	for i := range concatted {
 		if concatted[i] != actual[i] {
-			return fmt.Errorf("case %d: wrong instruction at index %d.\nwant=%q\ngot=%q",
+			return fmt.Errorf("case %d: wrong instruction at index %d.\nexpected=%q\ngot=%q",
 				idx, i, concatted, actual)
 		}
 	}

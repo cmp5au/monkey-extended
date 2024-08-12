@@ -76,6 +76,46 @@ func TestGlobalLetStatements(t *testing.T) {
 	runVmTests(t, tests)
 }
 
+func TestAssignmentStatements(t *testing.T) {
+	tests := []vmTestCase{
+		{ // test setting global from within enclosed scope
+			input: `
+			let a = 10;
+			let f = fn() {
+				let b = 100;
+				let g = fn() {
+					a = a + 1;
+					let c = 10000;
+					return c;
+				};
+				return g() + a * b;
+			};
+			f();
+			`,
+			expected: 11100, // 10000 + 11 * 100 = 11100
+		},
+		{ // test setting local from within enclosed scope
+			input: `
+			let a = 10;
+			let f = fn() {
+				let b = 100;
+				let g = fn() {
+					b = b + 1;
+					let c = 10000;
+					return c;
+				};
+				return g() + a * b;
+			};
+			f();
+			`,
+			expected: 11010, // 10000 + 10 * 101 = 11010
+		},
+	}
+
+	runVmTests(t, tests)
+}
+
+
 func TestStringExpression(t *testing.T) {
 	tests := []vmTestCase{
 		{`"monkey"`, "monkey"},
@@ -492,8 +532,6 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 		if err != nil {
 			t.Fatalf("compiler error: %s", err)
 		}
-
-		// fmt.Printf("%+v\n", c.Bytecode())
 
 		vm := New(c.Bytecode())
 		if err = vm.Run(); err != nil {

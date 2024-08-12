@@ -80,6 +80,8 @@ const (
 	OpGetGlobal
 	OpSetLocal
 	OpGetLocal
+	OpGetFree
+	OpCurrentClosure
 	OpArray
 	OpHash
 	OpIndex
@@ -88,8 +90,6 @@ const (
 	OpReturn
 	OpGetBuiltin
 	OpClosure
-	OpGetFree
-	OpCurrentClosure
 )
 
 var definitions = map[Opcode]*Definition{
@@ -112,8 +112,10 @@ var definitions = map[Opcode]*Definition{
 	OpJumpNotTruthy: {"OpJumpNotTruthy", []int{2}},
 	OpSetGlobal:     {"OpSetGlobal", []int{2}},
 	OpGetGlobal:     {"OpGetGlobal", []int{2}},
-	OpSetLocal:      {"OpSetLocal", []int{1}},
+	OpSetLocal:      {"OpSetLocal", []int{1, 1}},
 	OpGetLocal:      {"OpGetLocal", []int{1}},
+	OpGetFree:       {"OpGetFree", []int{1}},
+	OpCurrentClosure: {"OpCurrentClosure", []int{}},
 	OpArray:         {"OpArray", []int{2}},
 	OpHash:          {"OpHash", []int{2}},
 	OpIndex:         {"OpIndex", []int{}},
@@ -122,8 +124,6 @@ var definitions = map[Opcode]*Definition{
 	OpReturn:        {"OpReturn", []int{}},
 	OpGetBuiltin:    {"OpGetBuiltin", []int{1}},
 	OpClosure:       {"OpClosure", []int{2, 1}},
-	OpGetFree:       {"OpGetFree", []int{1}},
-	OpCurrentClosure: {"OpCurrentClosure", []int{}},
 }
 
 func Lookup(op byte) (*Definition, error) {

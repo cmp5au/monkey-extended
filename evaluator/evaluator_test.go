@@ -214,6 +214,10 @@ func TestErrorHandling(t *testing.T) {
 			"foobar",
 			&object.Error{"identifier not found: foobar"},
 		},
+		{
+			"a = 0",
+			&object.Error{"identifier a has not been declared in scope"},
+		},
 	}
 
 	runEvaluatorTests(t, tests)
@@ -225,6 +229,17 @@ func TestLetStatements(t *testing.T) {
 		{"let a = 5 * 5; a;", 25},
 		{"let a = 5; let b = a; b;", 5},
 		{"let a = 5; let b = a; let c = a + b + 5; c;", 15},
+	}
+
+	runEvaluatorTests(t, tests)
+}
+
+func TestAssignmentStatements(t *testing.T) {
+	tests := []evaluatorTest{
+		{"let a = 0; a = 5; a;", 5},
+		{"let a = 0; a = 5 * 5; a;", 25},
+		{"let a = 0; a = 5; let b = 2; b = a; b;", 5},
+		{"let a = 0; a = 5; let b = 2; b = a; let c = 4; c = a + b + 5; c;", 15},
 	}
 
 	runEvaluatorTests(t, tests)

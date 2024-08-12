@@ -2,9 +2,7 @@ package evaluator
 
 import (
 	"monkey/ast"
-	// "monkey/lexer"
 	"monkey/object"
-	// "monkey/parser"
 	"monkey/token"
 )
 
@@ -31,6 +29,8 @@ func Evaluate(node ast.Node, env *object.Environment) object.Object {
 		return evaluateBlockStatement(node, env)
 	case *ast.LetStatement:
 		return evaluateLetStatement(node, env)
+	case *ast.AssignmentStatement:
+		return evaluateAssignmentStatement(node, env)
 	case *ast.Identifier:
 		return evaluateIdentifier(node, env)
 	case *ast.IfExpression:
@@ -126,6 +126,18 @@ func evaluateLetStatement(letStmt *ast.LetStatement, env *object.Environment) ob
 		return obj
 	}
 	env.Set(letStmt.Identifier.Value, obj, true)
+	return NULL
+}
+
+func evaluateAssignmentStatement(assignStmt *ast.AssignmentStatement, env *object.Environment) object.Object {
+	if _, ok := env.Get(assignStmt.Identifier.Value); !ok {
+		return object.NewError("identifier %s has not been declared in scope", assignStmt.Identifier.Value)
+	}
+	obj := Evaluate(assignStmt.Rhs, env)
+	if isError(obj) {
+		return obj
+	}
+	env.Set(assignStmt.Identifier.Value, obj, false) // setIfAbsent = false allows us to modify in parent scope(s)
 	return NULL
 }
 

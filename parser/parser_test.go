@@ -41,6 +41,40 @@ func TestLetStatements(t *testing.T) {
 	}
 }
 
+func TestAssignmentStatements(t *testing.T) {
+	tests := []struct {
+		input              string
+		expectedIdentifier string
+		expectedValue      interface{}
+	}{
+		{"x = 5;", "x", 5},
+		{"y = true;", "y", true},
+		{"foobar = y;", "foobar", "y"},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+
+		if len(program.Statements) != 1 {
+			t.Fatalf("program.Statements does not contain 1 statements. got=%d",
+				len(program.Statements))
+		}
+
+		stmt := program.Statements[0]
+		if !testAssignmentStatement(t, stmt, tt.expectedIdentifier) {
+			return
+		}
+
+		val := stmt.(*ast.AssignmentStatement).Rhs
+		if !testLiteralExpression(t, val, tt.expectedValue) {
+			return
+		}
+	}
+}
+
 func TestReturnStatements(t *testing.T) {
 	tests := []struct {
 		input         string
@@ -953,6 +987,27 @@ func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	return true
 }
 
+func testAssignmentStatement(t *testing.T, s ast.Statement, name string) bool {
+	assignStmt, ok := s.(*ast.AssignmentStatement)
+	if !ok {
+		t.Errorf("s not *ast.AssignmentStatement. got=%T", s)
+		return false
+	}
+
+	if assignStmt.Identifier.Value != name {
+		t.Errorf("assignStmt.Identifier.Value not '%s'. got=%s", name, assignStmt.Identifier.Value)
+		return false
+	}
+
+	if assignStmt.Identifier.TokenLiteral() != name {
+		t.Errorf("assignStmt.Identifier.TokenLiteral() not '%s'. got=%s",
+			name, assignStmt.Identifier.TokenLiteral())
+		return false
+	}
+
+	return true
+}
+
 func testInfixBinaryOp(t *testing.T, exp ast.Expression, left interface{},
 	operator string, right interface{}) bool {
 
@@ -1159,8 +1214,6 @@ func testIndexAccess(t *testing.T, stmt ast.Statement, containerId string, value
 		t.Errorf("Incorrect identifier. expected=%s, got=%s", containerId, containerIdExpr.Value)
 		return false
 	}
-
-	// fmt.Printf("(%T) %+v\n", idxAccess.Index, idxAccess.Index)
 
 	var testResult bool
 	switch value := value.(type) {

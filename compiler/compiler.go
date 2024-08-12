@@ -93,7 +93,6 @@ func (c *Compiler) Compile(node ast.Node) error {
 			}
 		}
 	case *ast.ExpressionStatement:
-		// fmt.Printf("node: %+v\n", node)
 		err := c.Compile(node.Expression)
 		if err != nil {
 			return err
@@ -104,14 +103,44 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if !ok {
 			symbol = c.symbolTable.Define(node.Identifier.Value)
 		}
-		err := c.Compile(node.Rhs)
-		if err != nil {
+		if err := c.Compile(node.Rhs); err != nil {
 			return err
 		}
 		if symbol.Scope == GlobalScope {
 			c.emit(code.OpSetGlobal, symbol.Index)
 		} else {
-			c.emit(code.OpSetLocal, symbol.Index)
+			c.emit(code.OpSetLocal, symbol.Index, 0)
+		}
+	case *ast.AssignmentStatement:
+		symbol, ok := c.symbolTable.Resolve(node.Identifier.Value)
+		if !ok {
+			return fmt.Errorf("variable %s has not been declared in scope", node.Identifier.Value)
+		}
+		if err := c.Compile(node.Rhs); err != nil {
+			return err
+		}
+		switch symbol.Scope {
+		case GlobalScope:
+			c.emit(code.OpSetGlobal, symbol.Index)
+		case LocalScope:
+			c.emit(code.OpSetLocal, symbol.Index, 0)
+		case FreeScope:
+			symbolName := symbol.Name
+			symbolTable := c.symbolTable
+			for i := 1; ; i++ {
+				symbolTable = symbolTable.Outer
+				if symbolTable == nil {
+					return fmt.Errorf("could not resolve free variable %s to a local", symbolName)
+				}
+				symbol, ok = symbolTable.ResolveNoOuter(symbolName)
+				if ok && symbol.Scope != FreeScope {
+					if symbol.Scope != LocalScope {
+						return fmt.Errorf("free variable should only ever resolve to local scope, resolved to %s", symbol.Scope)
+					}
+					c.emit(code.OpSetLocal, symbol.Index, i)
+					break
+				}
+			}
 		}
 	case *ast.Identifier:
 		symbol, ok := c.symbolTable.Resolve(node.Value)
@@ -132,7 +161,6 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.removeLastPop()
 		}
 		if !c.lastInstructionIsPush() {
-			// fmt.Println("last instruction is not push", c.scopes[c.scopeIndex].lastInstruction)
 			c.emit(code.OpNull)
 		}
 
@@ -150,7 +178,6 @@ func (c *Compiler) Compile(node ast.Node) error {
 				c.removeLastPop()
 			}
 			if !c.lastInstructionIsPush() {
-				// fmt.Println("last instruction is not push", c.scopes[c.scopeIndex].lastInstruction)
 				c.emit(code.OpNull)
 			}
 		}

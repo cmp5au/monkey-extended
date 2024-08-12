@@ -168,9 +168,10 @@ func (vm *VM) Run() error {
 			}
 		case code.OpSetLocal:
 			localIndex := code.ReadUint8(ins[ip+1:])
-			vm.currentFrame().ip++
+			scopeCount := code.ReadUint8(ins[ip+2:])
+			vm.currentFrame().ip += 2
 
-			vm.stack[vm.currentFrame().basePointer + int(localIndex)] = vm.pop()
+			vm.stack[vm.frames[vm.frameIndex-1-int(scopeCount)].basePointer + int(localIndex)] = vm.pop()
 		case code.OpGetLocal:
 			localIndex := code.ReadUint8(ins[ip+1:])
 			vm.currentFrame().ip++

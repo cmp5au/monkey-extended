@@ -108,7 +108,7 @@ func TestAssignmentStatements(t *testing.T) {
 			};
 			f();
 			`,
-			expected: 11010, // 10000 + 10 * 101 = 11010
+			expected: 11000, // 10000 + 10 * 100 = 11000
 		},
 	}
 

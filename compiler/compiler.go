@@ -109,7 +109,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if symbol.Scope == GlobalScope {
 			c.emit(code.OpSetGlobal, symbol.Index)
 		} else {
-			c.emit(code.OpSetLocal, symbol.Index, 0)
+			c.emit(code.OpSetLocal, symbol.Index)
 		}
 	case *ast.AssignmentStatement:
 		symbol, ok := c.symbolTable.Resolve(node.Identifier.Value)
@@ -123,24 +123,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 		case GlobalScope:
 			c.emit(code.OpSetGlobal, symbol.Index)
 		case LocalScope:
-			c.emit(code.OpSetLocal, symbol.Index, 0)
+			c.emit(code.OpSetLocal, symbol.Index)
 		case FreeScope:
-			symbolName := symbol.Name
-			symbolTable := c.symbolTable
-			for i := 1; ; i++ {
-				symbolTable = symbolTable.Outer
-				if symbolTable == nil {
-					return fmt.Errorf("could not resolve free variable %s to a local", symbolName)
-				}
-				symbol, ok = symbolTable.ResolveNoOuter(symbolName)
-				if ok && symbol.Scope != FreeScope {
-					if symbol.Scope != LocalScope {
-						return fmt.Errorf("free variable should only ever resolve to local scope, resolved to %s", symbol.Scope)
-					}
-					c.emit(code.OpSetLocal, symbol.Index, i)
-					break
-				}
-			}
+			c.emit(code.OpSetFree, symbol.Index)
 		}
 	case *ast.Identifier:
 		symbol, ok := c.symbolTable.Resolve(node.Value)

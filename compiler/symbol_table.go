@@ -22,6 +22,7 @@ type SymbolTable struct {
 
 	Outer *SymbolTable
 	FreeSymbols []Symbol
+	depth int
 }
 
 func NewSymbolTable() *SymbolTable {
@@ -29,7 +30,7 @@ func NewSymbolTable() *SymbolTable {
 }
 
 func NewEnclosedSymbolTable(s *SymbolTable) *SymbolTable {
-	return &SymbolTable{store: make(map[string]Symbol), Outer: s}
+	return &SymbolTable{store: make(map[string]Symbol), Outer: s, depth: s.depth + 1}
 }
 
 func (s *SymbolTable) Define(name string) Symbol {
@@ -44,27 +45,16 @@ func (s *SymbolTable) Define(name string) Symbol {
 	return symbol
 }
 
-func (s *SymbolTable) Resolve(name string) (Symbol, bool) {
+func (s *SymbolTable) Resolve(name string, resolveIfNonlocal bool) (Symbol, bool) {
 	obj, ok := s.store[name]
-	if !ok && s.Outer != nil {
-		obj, ok = s.Outer.Resolve(name)
-		if !ok || obj.Scope == GlobalScope || obj.Scope == BuiltinScope {
-			return obj, ok
+	if !ok && s.Outer != nil && resolveIfNonlocal {
+		obj, ok = s.Outer.Resolve(name, true)
+		if ok && (obj.Scope == LocalScope || obj.Scope == FreeScope) {
+			free := s.DefineFree(obj)
+			return free, true
 		}
-		free := s.DefineFree(obj)
-		return free, true
 	}
 	return obj, ok
-}
-
-// this is somewhat hacky
-// TODO: implement a cleaner separation of declaration (let x;) and assignment (x = 2;)
-func (s *SymbolTable) ResolveNoOuter(name string) (Symbol, bool) {
-	sym, ok := s.store[name]
-	if sym.Scope == FunctionScope {
-		return Symbol{}, false
-	}
-	return sym, ok
 }
 
 func (s *SymbolTable) DefineBuiltin(index int, name string) Symbol {

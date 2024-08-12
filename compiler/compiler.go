@@ -99,8 +99,8 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 		c.emit(code.OpPop)
 	case *ast.LetStatement:
-		symbol, ok := c.symbolTable.ResolveNoOuter(node.Identifier.Value)
-		if !ok {
+		symbol, ok := c.symbolTable.Resolve(node.Identifier.Value, false)
+		if !ok || symbol.Scope == FunctionScope {
 			symbol = c.symbolTable.Define(node.Identifier.Value)
 		}
 		if err := c.Compile(node.Rhs); err != nil {
@@ -112,7 +112,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(code.OpSetLocal, symbol.Index)
 		}
 	case *ast.AssignmentStatement:
-		symbol, ok := c.symbolTable.Resolve(node.Identifier.Value)
+		symbol, ok := c.symbolTable.Resolve(node.Identifier.Value, true)
 		if !ok {
 			return fmt.Errorf("variable %s has not been declared in scope", node.Identifier.Value)
 		}
@@ -126,9 +126,15 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(code.OpSetLocal, symbol.Index)
 		case FreeScope:
 			c.emit(code.OpSetFree, symbol.Index)
+		case BuiltinScope:
+			return fmt.Errorf("cannot assign to builtin function")
+		case FunctionScope:
+			return fmt.Errorf("variable %s has not been declared in scope", symbol.Name)
+		default:
+			return fmt.Errorf("unknown scope: %s", symbol.Scope)
 		}
 	case *ast.Identifier:
-		symbol, ok := c.symbolTable.Resolve(node.Value)
+		symbol, ok := c.symbolTable.Resolve(node.Value, true)
 		if !ok {
 			return fmt.Errorf("undefined variable %s", node.Value)
 		}
@@ -461,7 +467,7 @@ func (c *Compiler) compileBuiltinCall(
 	builtin *ast.BuiltinFunction,
 	args []ast.Expression,
 ) error {
-	builtinSymbol, ok := c.symbolTable.Resolve(builtin.Value)
+	builtinSymbol, ok := c.symbolTable.Resolve(builtin.Value, true)
 	if !ok {
 		return fmt.Errorf("unable to resolve builtin %s", builtin.Value)
 	}

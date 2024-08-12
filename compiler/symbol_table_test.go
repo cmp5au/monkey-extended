@@ -60,7 +60,7 @@ func TestResolveGlobal(t *testing.T) {
 	}
 
 	for _, sym := range expected {
-		result, ok := global.Resolve(sym.Name)
+		result, ok := global.Resolve(sym.Name, true)
 		if !ok {
 			t.Errorf("name %s not resolvable", sym.Name)
 		}
@@ -88,7 +88,7 @@ func TestResolveLocal(t *testing.T) {
 	}
 
 	for _, sym := range expected {
-		result, ok := local.Resolve(sym.Name)
+		result, ok := local.Resolve(sym.Name, true)
 		if !ok {
 			t.Errorf("name %s not resolvable", sym.Name)
 		}
@@ -138,7 +138,7 @@ func TestResolveNestedLocal(t *testing.T) {
 
 	for _, test := range tests {
 		for _, sym := range test.expectedSymbols {
-			result, ok := test.table.Resolve(sym.Name)
+			result, ok := test.table.Resolve(sym.Name, true)
 			if !ok {
 				t.Errorf("name %s not resolvable", sym.Name)
 				continue
@@ -169,7 +169,7 @@ func TestDefineResolveBuiltins(t *testing.T) {
 
 	for _, table := range []*SymbolTable{global, firstLocal, secondLocal} {
 		for _, sym := range expected {
-			result, ok := table.Resolve(sym.Name)
+			result, ok := table.Resolve(sym.Name, true)
 			if !ok {
 				t.Errorf("name %s not resolvable", sym.Name)
 				continue
@@ -229,7 +229,7 @@ func TestResolveFree(t *testing.T) {
 
 	for _, test := range tests {
 		for _, sym := range test.expectedSymbols {
-			result, ok := test.table.Resolve(sym.Name)
+			result, ok := test.table.Resolve(sym.Name, true)
 			if !ok {
 				t.Errorf("name %s not resolvable", sym.Name)
 				continue
@@ -275,7 +275,7 @@ func TestResolveUnresolvableFree(t *testing.T) {
 	}
 
 	for _, sym := range expected {
-		result, ok := secondLocal.Resolve(sym.Name)
+		result, ok := secondLocal.Resolve(sym.Name, true)
 		if !ok {
 			t.Errorf("name %s not resolvable", sym.Name)
 			continue
@@ -289,7 +289,7 @@ func TestResolveUnresolvableFree(t *testing.T) {
 	expectedUnresolvable := []string{"b", "d"}
 
 	for _, name := range expectedUnresolvable {
-		_, ok := secondLocal.Resolve(name)
+		_, ok := secondLocal.Resolve(name, true)
 		if ok {
 			t.Errorf("name %s resolved, but was expected not to", name)
 		}
@@ -302,7 +302,7 @@ func TestDefineAndResolveFunctionName(t *testing.T) {
 
 	expected := Symbol{Name: "a", Scope: FunctionScope, Index: 0}
 
-	result, ok := global.Resolve(expected.Name)
+	result, ok := global.Resolve(expected.Name, true)
 	if !ok {
 		t.Fatalf("function name %s not resolvable", expected.Name)
 	}
@@ -316,7 +316,7 @@ func TestDefineAndResolveFunctionName(t *testing.T) {
 
 	expected = Symbol{Name: "a", Scope: GlobalScope, Index: 0}
 
-	result, ok = global.Resolve(expected.Name)
+	result, ok = global.Resolve(expected.Name, true)
 	if !ok {
 		t.Fatalf("function name %s not resolvable", expected.Name)
 	}

@@ -33,6 +33,16 @@ type Object interface {
 	Inspect() string
 }
 
+type HashKey struct {
+	Type ObjectType
+	KeyRepr string
+	Value uint64
+}
+
+type Hashable interface {
+	Hash() HashKey
+}
+
 type String struct {
 	Value string
 }
@@ -168,7 +178,7 @@ func (a Array) Inspect() string {
 	return out.String()
 }
 
-type Hash map[string]Object
+type Hash map[HashKey]Object
 
 func (h Hash) Type() ObjectType { return HASH }
 
@@ -177,7 +187,7 @@ func (h Hash) Inspect() string {
 	hashPairStrings := []string{}
 
 	for key, val := range h {
-		hashPairStrings = append(hashPairStrings, key+": "+val.Inspect())
+		hashPairStrings = append(hashPairStrings, key.KeyRepr+": "+val.Inspect())
 	}
 	out.WriteString("{ ")
 	out.WriteString(strings.Join(hashPairStrings, ", "))

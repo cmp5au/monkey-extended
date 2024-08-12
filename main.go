@@ -21,7 +21,7 @@ func main() {
  
 	fmt.Printf("Hello %s! This is an interactive REPL for the Monkey programming language.\n", user.Username)
 	fmt.Println("Feel free to type in commands below.")
-	repl.Start(os.Stdin, os.Stdout)
+	repl.StartInterpretedRepl(os.Stdin, os.Stdout)
 
 	// fmt.Println(os.Args)
 //	inBuffer, err := os.ReadFile(os.Args[1])

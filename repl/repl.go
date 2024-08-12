@@ -29,7 +29,7 @@ const (
 `
 )
 
-func StartInterpretedRepl(in io.Reader, out io.Writer {
+func StartInterpretedRepl(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 	env := object.NewEnvironment()
 
@@ -39,6 +39,7 @@ func StartInterpretedRepl(in io.Reader, out io.Writer {
 		if !scanned {
 			return
 		}
+		line := scanner.Text()
 
 		l := lexer.New(line)
 		p := parser.New(l)

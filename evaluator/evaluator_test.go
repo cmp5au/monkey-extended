@@ -391,12 +391,13 @@ func testHashObject(t *testing.T, evaluated object.Object, expected map[string]o
 		t.Errorf("object is not object.Hash, got=%T (%+v)", evaluated, evaluated)
 		return false
 	}
-	m := map[string]object.Object(hashObj)
+	m := map[object.HashKey]object.Object(hashObj)
 	if len(expected) != len(m) {
 		t.Errorf("unequal hashmap lengths, expected=%v, got=%v", expected, m)
 	}
 	for k, o := range expected {
-		eVal, ok := m[k]
+		sKey := &object.String{k}
+		eVal, ok := m[sKey.Hash()]
 		if !ok {
 			t.Errorf("evaluated map is missing key=%q", k)
 			return false

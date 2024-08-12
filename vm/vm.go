@@ -214,17 +214,17 @@ func (vm *VM) Run() error {
 		case code.OpHash:
 			length := code.ReadUint16(ins[ip+1:])
 			vm.currentFrame().ip += 2
-			hash := map[string]object.Object{}
+			hash := map[object.HashKey]object.Object{}
 
 			for _ = range length {
 				value := vm.pop()
 				key := vm.pop()
-				stringKey, ok := key.(*object.String)
+				hashableKey, ok := key.(object.Hashable)
 				if !ok {
 					return fmt.Errorf("cannot use an instance of type %T (%+v) as a hash key",
 						key, key)
 				}
-				hash[stringKey.Value] = value
+				hash[hashableKey.Hash()] = value
 			}
 			err := vm.push(object.Hash(hash))
 			if err != nil {
@@ -251,16 +251,16 @@ func (vm *VM) Run() error {
 						intIdx.Value, len(arr))
 				}
 			case object.Hash:
-				stringIdx, ok := idxObj.(*object.String)
+				hashableIdx, ok := idxObj.(object.Hashable)
 				if !ok {
 					return fmt.Errorf("cannot use an instance of type %T (%+v) as a hash index",
 						idxObj, idxObj)
 				}
-				hash := map[string]object.Object(container)
-				val, ok := hash[stringIdx.Value]
+				hash := map[object.HashKey]object.Object(container)
+				val, ok := hash[hashableIdx.Hash()]
 				if !ok {
 					vm.push(NULL)
-					return fmt.Errorf("index error for index %q", stringIdx.Value)
+					return fmt.Errorf("index error for index %q", idxObj.Inspect())
 				}
 				if err := vm.push(val); err != nil {
 					return err

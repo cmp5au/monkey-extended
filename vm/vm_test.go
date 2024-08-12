@@ -630,13 +630,14 @@ func testHashObject(expected map[string]object.Object, actual object.Object) err
 		return fmt.Errorf("object is not Hash.\ngot=%T (%+v)",
 			actual, actual)
 	}
-	hash := map[string]object.Object(result)
+	hash := map[object.HashKey]object.Object(result)
 	if len(expected) != len(hash) {
 		return fmt.Errorf("wrong number of elements: expected=%d, got=%d",
 			len(expected), len(hash))
 	}
 	for key, val := range expected {
-		actualObj, ok := hash[key]
+		sKey := &object.String{key}
+		actualObj, ok := hash[sKey.Hash()]
 		if !ok {
 			return fmt.Errorf("expected key=%q not present in object.Hash", key)
 		}

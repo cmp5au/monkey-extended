@@ -154,13 +154,13 @@ func evaluateArrayLiteral(arr *ast.ArrayLiteral, env *object.Environment) object
 }
 
 func evaluateHashLiteral(hash *ast.HashLiteral, env *object.Environment) object.Object {
-	hashMap := map[string]object.Object{}
+	hashMap := map[object.HashKey]object.Object{}
 	for _, hashPair := range hash.Contents {
-		key := Evaluate(hashPair.Key, env)
-		if sKey, ok := key.(*object.String); ok {
-			hashMap[sKey.Value] = Evaluate(hashPair.Value, env)
+		keyObj := Evaluate(hashPair.Key, env)
+		if key, ok := keyObj.(object.Hashable); ok {
+			hashMap[key.Hash()] = Evaluate(hashPair.Value, env)
 		} else {
-			return object.NewError("non-string hash key. got=%T (%+v)", key, key)
+			return object.NewError("non-hashable literal key. got=%T (%+v)", key, key)
 		}
 	}
 	return object.Hash(hashMap)
@@ -229,12 +229,12 @@ func evaluateIndexAccess(idxAccess *ast.IndexAccess, env *object.Environment) ob
 			idx.Value, len(container))
 	case object.Hash:
 		idxObj := Evaluate(idxAccess.Index, env)
-		idx, ok := idxObj.(*object.String)
+		idx, ok := idxObj.(object.Hashable)
 		if !ok {
-			return object.NewError("hashes may only be indexed with string values. got=%T (%+v)",
+			return object.NewError("index is not hashable. got=%T (%+v)",
 				idxObj, idxObj)
 		}
-		if val, ok := container[idx.Value]; ok {
+		if val, ok := container[idx.Hash()]; ok {
 			return val
 		}
 	}

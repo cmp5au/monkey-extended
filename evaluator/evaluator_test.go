@@ -113,6 +113,7 @@ func TestEvalHashExpression(t *testing.T) {
 
 func TestBangPrefixUnaryOp(t *testing.T) {
 	tests := []evaluatorTest{
+		{"!null", true},
 		{"!true", false},
 		{"!false", true},
 		{"!5", false},
@@ -151,6 +152,7 @@ func TestForStatements(t *testing.T) {
 
 func TestReturnStatements(t *testing.T) {
 	tests := []evaluatorTest{
+		{"return null;", nil},
 		{"return 10;", 10},
 		{"return 10; 9;", 10},
 		{"return 2 * 5; 9;", 10},
@@ -225,6 +227,7 @@ func TestErrorHandling(t *testing.T) {
 
 func TestLetStatements(t *testing.T) {
 	tests := []evaluatorTest{
+		{"let a = 5;", nil},
 		{"let a = 5; a;", 5},
 		{"let a = 5 * 5; a;", 25},
 		{"let a = 5; let b = a; b;", 5},
@@ -236,6 +239,7 @@ func TestLetStatements(t *testing.T) {
 
 func TestAssignmentStatements(t *testing.T) {
 	tests := []evaluatorTest{
+		{"let a = 0; a = 5;", nil},
 		{"let a = 0; a = 5; a;", 5},
 		{"let a = 0; a = 5 * 5; a;", 25},
 		{"let a = 0; a = 5; let b = 2; b = a; b;", 5},

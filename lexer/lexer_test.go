@@ -31,6 +31,7 @@ let arr = [1, 2];
 arr[1];
 let hash = {"hi": "there", "bye": "bye"};
 hash["bye"];
+null;
 `
 
 	tests := []struct {
@@ -149,6 +150,8 @@ hash["bye"];
 		{token.LBRACKET, "["},
 		{token.STRING, "bye"},
 		{token.RBRACKET, "]"},
+		{token.SEMICOLON, ";"},
+		{token.NULL, "null"},
 		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}

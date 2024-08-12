@@ -188,6 +188,20 @@ func TestConditionals(t *testing.T) {
 				code.Make(code.OpPop),               // 0017
 			},
 		},
+		{
+			input: `
+			if (null) { 1 } else { 2 };
+			`,
+			expectedConstants: []interface{}{1, 2},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpNull),
+				code.Make(code.OpJumpNotTruthy, 10),
+				code.Make(code.OpConstant, 0),
+				code.Make(code.OpJump, 13),
+				code.Make(code.OpConstant, 1),
+				code.Make(code.OpPop),
+			},
+		},
 	}
 
 	runCompilerTests(t, tests)

@@ -274,6 +274,8 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 	case *ast.StringLiteral:
 		c.emit(code.OpConstant, c.addConstant(&object.String{Value: node.Value}))
+	case *ast.NullLiteral:
+		c.emit(code.OpNull)
 	case *ast.ArrayLiteral:
 		for _, content := range node.Contents {
 			c.Compile(content)

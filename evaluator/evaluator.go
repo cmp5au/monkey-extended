@@ -55,6 +55,8 @@ func Evaluate(node ast.Node, env *object.Environment) object.Object {
 		} else {
 			return FALSE
 		}
+	case *ast.NullLiteral:
+		return NULL
 	case *ast.FunctionLiteral:
 		return &object.Function{Parameters: node.Parameters, Body: node.Body, Env: object.NewEnvironment(env)}
 	case *ast.ArrayLiteral:

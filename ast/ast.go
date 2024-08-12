@@ -174,6 +174,16 @@ func (s *StringLiteral) String() string { return s.Token.Literal }
 
 func (s *StringLiteral) expressionNode() {}
 
+type NullLiteral struct {
+	Token token.Token
+}
+
+func (n *NullLiteral) TokenLiteral() string { return n.Token.Literal }
+
+func (n *NullLiteral) String() string { return n.Token.Literal }
+
+func (n *NullLiteral) expressionNode() {}
+
 type PrefixUnaryOp struct {
 	Token    token.Token
 	Operator string

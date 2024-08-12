@@ -54,6 +54,7 @@ const (
 	FOR      = "FOR"
 	BREAK    = "BREAK"
 	CONTINUE = "CONTINUE"
+	NULL     = "NULL"
 
 	// builtin functions
 	LEN  = "LEN"
@@ -72,6 +73,7 @@ var keywords = map[string]TokenType{
 	"for":      FOR,
 	"break":    BREAK,
 	"continue": CONTINUE,
+	"null":     NULL,
 	"len":      LEN,
 	"puts":     PUTS,
 	"push":     PUSH,

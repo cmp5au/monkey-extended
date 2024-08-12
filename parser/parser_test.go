@@ -16,6 +16,7 @@ func TestLetStatements(t *testing.T) {
 		{"let x = 5;", "x", 5},
 		{"let y = true;", "y", true},
 		{"let foobar = y;", "foobar", "y"},
+		{"let testNull = null;", "testNull", nil},
 	}
 
 	for _, tt := range tests {
@@ -1051,6 +1052,8 @@ func testLiteralExpression(
 		return testArrayLiteral(t, exp, v)
 	case map[string]string:
 		return testHashLiteral(t, exp, v)
+	case nil:
+		return testNullLiteral(t, exp)
 	}
 	t.Errorf("type of exp not handled. got=%T", exp)
 	return false
@@ -1187,6 +1190,15 @@ func testHashLiteral(t *testing.T, exp ast.Expression, value map[string]string) 
 		if !testStringLiteral(t, hashPair.Value, val) {
 			return false
 		}
+	}
+	return true
+}
+
+func testNullLiteral(t *testing.T, exp ast.Expression) bool {
+	_, ok := exp.(*ast.NullLiteral)
+	if !ok {
+		t.Errorf("exp not *ast.NullLiteral, got=%T", exp)
+		return false
 	}
 	return true
 }

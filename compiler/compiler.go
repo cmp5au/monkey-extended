@@ -23,11 +23,12 @@ type CompilationScope struct {
 	instructions        code.Instructions
 	lastInstruction     EmittedInstruction
 	previousInstruction EmittedInstruction
+	controlFlow         ControlFlow
 }
 
 type ControlFlow struct {
-	breakStatementStack [][]int
-	continueStatementStack [][]int
+	breakStack [][]int
+	continueStack [][]int
 }
 
 type Compiler struct {
@@ -36,7 +37,6 @@ type Compiler struct {
 	symbolTable *SymbolTable
 	scopes      []CompilationScope
 	scopeIndex  int
-	controlFlow ControlFlow
 }
 
 func New() *Compiler {
@@ -44,6 +44,7 @@ func New() *Compiler {
 		instructions:        code.Instructions{},
 		lastInstruction:     EmittedInstruction{},
 		previousInstruction: EmittedInstruction{},
+		controlFlow: ControlFlow{[][]int{}, [][]int{}},
 	}
 
 	symbolTable := NewSymbolTable()
@@ -56,7 +57,6 @@ func New() *Compiler {
 		symbolTable: symbolTable,
 		scopes:      []CompilationScope{mainScope},
 		scopeIndex:  0,
-		controlFlow: ControlFlow{[][]int{}, [][]int{}},
 	}
 }
 
@@ -65,6 +65,7 @@ func NewWithState(s *SymbolTable, constants []object.Object) *Compiler {
 		instructions:        code.Instructions{},
 		lastInstruction:     EmittedInstruction{},
 		previousInstruction: EmittedInstruction{},
+		controlFlow: ControlFlow{[][]int{{}}, [][]int{{}}},
 	}
 
 	return &Compiler{
@@ -72,7 +73,6 @@ func NewWithState(s *SymbolTable, constants []object.Object) *Compiler {
 		symbolTable: s,
 		scopes:      []CompilationScope{mainScope},
 		scopeIndex:  0,
-		controlFlow: ControlFlow{[][]int{{}}, [][]int{{}}},
 	}
 }
 
@@ -122,7 +122,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 	case *ast.AssignmentStatement:
 		symbol, ok := c.symbolTable.Resolve(node.Identifier.Value, true)
 		if !ok {
-			return fmt.Errorf("variable %s has not been declared in scope", node.Identifier.Value)
+			return fmt.Errorf("variable %s not declared in scope", node.Identifier.Value)
 		}
 		if err := c.Compile(node.Rhs); err != nil {
 			return err
@@ -137,7 +137,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		case BuiltinScope:
 			return fmt.Errorf("cannot assign to builtin function")
 		case FunctionScope:
-			return fmt.Errorf("variable %s has not been declared in scope", symbol.Name)
+			return fmt.Errorf("variable %s not declared in scope", symbol.Name)
 		default:
 			return fmt.Errorf("unknown scope: %s", symbol.Scope)
 		}
@@ -184,8 +184,9 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 		c.changeOperand(jumpPos, len(c.scopes[c.scopeIndex].instructions))
 	case *ast.ForStatement:
-		c.controlFlow.breakStatementStack = append(c.controlFlow.breakStatementStack, []int{})
-		c.controlFlow.continueStatementStack = append(c.controlFlow.continueStatementStack, []int{})
+		cf := &c.scopes[c.scopeIndex].controlFlow
+		cf.breakStack = append(cf.breakStack, []int{})
+		cf.continueStack = append(cf.continueStack, []int{})
 		loopStart := len(c.scopes[c.scopeIndex].instructions)
 		jumpNotTruthyPos := -1
 		if node.Condition != nil {
@@ -202,26 +203,34 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if jumpNotTruthyPos != -1 {
 			c.changeOperand(jumpNotTruthyPos, len(c.scopes[c.scopeIndex].instructions))
 		}
-		for _, breakPos := range c.controlFlow.breakStatementStack[len(c.controlFlow.breakStatementStack) - 1] {
+		for _, breakPos := range cf.breakStack[len(cf.breakStack) - 1] {
 			c.changeOperand(breakPos, len(c.scopes[c.scopeIndex].instructions))
 		}
-		for _, continuePos := range c.controlFlow.continueStatementStack[len(c.controlFlow.continueStatementStack) - 1] {
+		for _, continuePos := range cf.continueStack[len(cf.continueStack) - 1] {
 			c.changeOperand(continuePos, loopStart)
 		}
-		c.controlFlow.breakStatementStack = c.controlFlow.breakStatementStack[:len(c.controlFlow.breakStatementStack)-1]
-		c.controlFlow.continueStatementStack = c.controlFlow.continueStatementStack[:len(c.controlFlow.continueStatementStack)-1]
+		cf.breakStack = cf.breakStack[:len(cf.breakStack)-1]
+		cf.continueStack = cf.continueStack[:len(cf.continueStack)-1]
 		c.emit(code.OpNull)
 		c.emit(code.OpPop)
 	case *ast.BreakStatement:
-		if len(c.controlFlow.breakStatementStack) == 0 {
+		cf := &c.scopes[c.scopeIndex].controlFlow
+		if len(cf.breakStack) == 0 {
 			return fmt.Errorf("cannot break without an enclosing `for` loop")
 		}
-		c.controlFlow.breakStatementStack[len(c.controlFlow.breakStatementStack)-1] = append(c.controlFlow.breakStatementStack[len(c.controlFlow.breakStatementStack)-1], c.emit(code.OpJump, 9999))
+		cf.breakStack[len(cf.breakStack)-1] = append(
+			cf.breakStack[len(cf.breakStack)-1],
+			c.emit(code.OpJump, 9999),
+		)
 	case *ast.ContinueStatement:
-		if len(c.controlFlow.continueStatementStack) == 0 {
+		cf := &c.scopes[c.scopeIndex].controlFlow
+		if len(cf.continueStack) == 0 {
 			return fmt.Errorf("cannot continue without an enclosing `for` loop")
 		}
-		c.controlFlow.continueStatementStack[len(c.controlFlow.continueStatementStack)-1] = append(c.controlFlow.continueStatementStack[len(c.controlFlow.continueStatementStack)-1], c.emit(code.OpJump, 9999))
+		cf.continueStack[len(cf.continueStack)-1] = append(
+			cf.continueStack[len(cf.continueStack)-1],
+			c.emit(code.OpJump, 9999),
+		)
 	case *ast.PrefixUnaryOp:
 		err := c.Compile(node.Rhs)
 		if err != nil {
@@ -424,8 +433,9 @@ func (c *Compiler) lastInstructionIsPush() bool {
 }
 
 func (c *Compiler) removeLastPop() {
-	c.scopes[c.scopeIndex].instructions = c.scopes[c.scopeIndex].instructions[:c.scopes[c.scopeIndex].lastInstruction.Position]
-	c.scopes[c.scopeIndex].lastInstruction = c.scopes[c.scopeIndex].previousInstruction
+	curScope := &c.scopes[c.scopeIndex]
+	curScope.instructions = curScope.instructions[:curScope.lastInstruction.Position]
+	curScope.lastInstruction = curScope.previousInstruction
 }
 
 func (c *Compiler) replaceInstruction(pos int, newInstruction []byte) {
@@ -446,6 +456,7 @@ func (c *Compiler) enterScope() {
 		instructions:        code.Instructions{},
 		lastInstruction:     EmittedInstruction{},
 		previousInstruction: EmittedInstruction{},
+		controlFlow:         ControlFlow{[][]int{}, [][]int{}},
 	}
 	c.scopes = append(c.scopes, scope)
 	c.scopeIndex++

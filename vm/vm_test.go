@@ -314,6 +314,7 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`puts("hello, world!")`, NULL},
 		{`push([], 1)`, []int{1}},
 		{`push(1, 1)`, &object.Error{"first argument to push() must be an array"}},
+		{`let arr = [1, 2, 3]; pop(arr); arr;`, []int{1, 2}},
 	}
 
 	runVmTests(t, tests)
@@ -657,12 +658,12 @@ func testStringObject(expected string, actual object.Object) error {
 
 // tests an expected array against the actual Object in the compiled bytecode
 func testArrayObject(expected []int, actual object.Object) error {
-	result, ok := actual.(object.Array)
+	result, ok := actual.(*object.Array)
 	if !ok {
 		return fmt.Errorf("object is not Array.\ngot=%T (%+v)",
 			actual, actual)
 	}
-	arr := []object.Object(result)
+	arr := []object.Object(*result)
 	if len(expected) != len(arr) {
 		return fmt.Errorf("wrong number of elements: expected=%d, got=%d",
 			len(expected), len(arr))
@@ -677,12 +678,12 @@ func testArrayObject(expected []int, actual object.Object) error {
 
 // tests an expected hashmap against the actual Object in the compiled bytecode
 func testHashObject(expected map[string]object.Object, actual object.Object) error {
-	result, ok := actual.(object.Hash)
+	result, ok := actual.(*object.Hash)
 	if !ok {
 		return fmt.Errorf("object is not Hash.\ngot=%T (%+v)",
 			actual, actual)
 	}
-	hash := map[object.HashKey]object.Object(result)
+	hash := map[object.HashKey]object.Object(*result)
 	if len(expected) != len(hash) {
 		return fmt.Errorf("wrong number of elements: expected=%d, got=%d",
 			len(expected), len(hash))

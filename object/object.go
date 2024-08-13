@@ -161,13 +161,13 @@ func ExposeBuiltin(bf *ast.BuiltinFunction) Object {
 
 type Array []Object
 
-func (a Array) Type() ObjectType { return ARRAY }
+func (a *Array) Type() ObjectType { return ARRAY }
 
-func (a Array) Inspect() string {
+func (a *Array) Inspect() string {
 	var out bytes.Buffer
 	objStrings := []string{}
 
-	for _, obj := range a {
+	for _, obj := range *a {
 		objStrings = append(objStrings, obj.Inspect())
 	}
 
@@ -180,13 +180,13 @@ func (a Array) Inspect() string {
 
 type Hash map[HashKey]Object
 
-func (h Hash) Type() ObjectType { return HASH }
+func (h *Hash) Type() ObjectType { return HASH }
 
-func (h Hash) Inspect() string {
+func (h *Hash) Inspect() string {
 	var out bytes.Buffer
 	hashPairStrings := []string{}
 
-	for key, val := range h {
+	for key, val := range *h {
 		hashPairStrings = append(hashPairStrings, key.KeyRepr+": "+val.Inspect())
 	}
 	out.WriteString("{ ")

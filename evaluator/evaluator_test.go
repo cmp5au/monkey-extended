@@ -292,6 +292,7 @@ func TestBuiltinFunctions(t *testing.T) {
 		{"len(\"Hello, world!\");", 13},
 		{"puts(\"Hello, world!\");", nil},
 		{"let x = [1]; let y = push(x, 2); y[1];", 2},
+		{"let arr = [1, 2, 3]; pop(arr); arr;", []int{1, 2}},
 	}
 
 	runEvaluatorTests(t, tests)
@@ -391,12 +392,12 @@ func testStringObject(t *testing.T, evaluated object.Object, expected string) bo
 }
 
 func testArrayObject(t *testing.T, evaluated object.Object, expected []int) bool {
-	arrayObj, ok := evaluated.(object.Array)
+	arrayObj, ok := evaluated.(*object.Array)
 	if !ok {
-		t.Errorf("object is not object.Array, got=%T (%+v)", evaluated, evaluated)
+		t.Errorf("object is not *object.Array, got=%T (%+v)", evaluated, evaluated)
 		return false
 	}
-	arr := []object.Object(arrayObj)
+	arr := []object.Object(*arrayObj)
 	if len(arr) != len(expected) {
 		t.Errorf("unequal array lengths, expected=%v, got=%v", expected, arr)
 	}
@@ -409,12 +410,12 @@ func testArrayObject(t *testing.T, evaluated object.Object, expected []int) bool
 }
 
 func testHashObject(t *testing.T, evaluated object.Object, expected map[string]object.Object) bool {
-	hashObj, ok := evaluated.(object.Hash)
+	hashObj, ok := evaluated.(*object.Hash)
 	if !ok {
-		t.Errorf("object is not object.Hash, got=%T (%+v)", evaluated, evaluated)
+		t.Errorf("object is not *object.Hash, got=%T (%+v)", evaluated, evaluated)
 		return false
 	}
-	m := map[object.HashKey]object.Object(hashObj)
+	m := map[object.HashKey]object.Object(*hashObj)
 	if len(expected) != len(m) {
 		t.Errorf("unequal hashmap lengths, expected=%v, got=%v", expected, m)
 	}

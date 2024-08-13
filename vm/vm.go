@@ -211,7 +211,8 @@ func (vm *VM) Run() error {
 			for i := range length {
 				arr[length-1-i] = vm.pop()
 			}
-			err := vm.push(object.Array(arr))
+			arrObj := object.Array(arr)
+			err := vm.push(&arrObj)
 			if err != nil {
 				return err
 			}
@@ -230,7 +231,8 @@ func (vm *VM) Run() error {
 				}
 				hash[hashableKey.Hash()] = value
 			}
-			err := vm.push(object.Hash(hash))
+			hashObj := object.Hash(hash)
+			err := vm.push(&hashObj)
 			if err != nil {
 				return err
 			}
@@ -238,13 +240,13 @@ func (vm *VM) Run() error {
 			idxObj := vm.pop()
 			containerObj := vm.pop()
 			switch container := containerObj.(type) {
-			case object.Array:
+			case *object.Array:
 				intIdx, ok := idxObj.(*object.Integer)
 				if !ok {
 					return fmt.Errorf("cannot use an instance of type %T (%+v) as an array index",
 						idxObj, idxObj)
 				}
-				arr := []object.Object(container)
+				arr := []object.Object(*container)
 				if 0 <= intIdx.Value && int(intIdx.Value) < len(arr) {
 					if err := vm.push(arr[intIdx.Value]); err != nil {
 						return err
@@ -254,13 +256,13 @@ func (vm *VM) Run() error {
 					return fmt.Errorf("index %d is out of bounds for an array with length %d",
 						intIdx.Value, len(arr))
 				}
-			case object.Hash:
+			case *object.Hash:
 				hashableIdx, ok := idxObj.(object.Hashable)
 				if !ok {
 					return fmt.Errorf("cannot use an instance of type %T (%+v) as a hash index",
 						idxObj, idxObj)
 				}
-				hash := map[object.HashKey]object.Object(container)
+				hash := map[object.HashKey]object.Object(*container)
 				val, ok := hash[hashableIdx.Hash()]
 				if !ok {
 					vm.push(NULL)
@@ -470,11 +472,11 @@ func (vm *VM) callFunction(numArgs int) error {
 		return nil
 	case object.Builtin:
 		arg := vm.stack[vm.sp - numArgs]
-		argArray, ok := arg.(object.Array)
+		argArray, ok := arg.(*object.Array)
 		if !ok {
 			return fmt.Errorf("cannot call builtin with type %T, only object.Array", arg)
 		}
-		result := callee([]object.Object(argArray))
+		result := callee([]object.Object(*argArray))
 		vm.sp = vm.sp - numArgs - 1
 		if result != nil {
 			vm.push(result)

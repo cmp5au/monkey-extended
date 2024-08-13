@@ -14,8 +14,8 @@ var Builtins = []struct{
 			}
 
 			switch obj := objs[0].(type) {
-			case Array:
-				return &Integer{Value: int64(len([]Object(obj)))}
+			case *Array:
+				return &Integer{Value: int64(len([]Object(*obj)))}
 			case *String:
 				return &Integer{Value: int64(len(obj.Value))}
 			default:
@@ -40,8 +40,8 @@ var Builtins = []struct{
 			case *Boolean:
 				if obj.Value { fmt.Println("true") } else { fmt.Println("false") }
 				return nil
-			case Array:
-				fmt.Printf("%v\n", []Object(obj))
+			case *Array:
+				fmt.Printf("%v\n", []Object(*obj))
 				return nil
 			default:
 				return &Error{"puts() argument cannot be of type %T"}
@@ -54,12 +54,27 @@ var Builtins = []struct{
 			if len(objs) < 2 {
 				return &Error{"push() takes 2 or more arguments"}
 			}
-			arr, ok := objs[0].(Array)
+			arr, ok := objs[0].(*Array)
 			if !ok {
 				return &Error{"first argument to push() must be an array"}
 			}
-			arr = append(arr, objs[1:]...)
+			*arr = append(*arr, objs[1:]...)
 			return arr
+		}),
+	},
+	{
+		Name: "pop",
+		Builtin: Builtin(func(objs []Object) Object {
+			if len(objs) != 1 {
+				return &Error{"pop() takes 1 argument"}
+			}
+			arr, ok := objs[0].(*Array)
+			if !ok {
+				return &Error{"pop() argument must be an array"}
+			}
+			lastVal := (*arr)[len(*arr) - 1]
+			*arr = (*arr)[:len(*arr) - 1]
+			return lastVal
 		}),
 	},
 }

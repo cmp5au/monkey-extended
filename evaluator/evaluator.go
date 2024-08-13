@@ -167,7 +167,8 @@ func evaluateArrayLiteral(arr *ast.ArrayLiteral, env *object.Environment) object
 	for _, item := range arr.Contents {
 		objectContents = append(objectContents, Evaluate(item, env))
 	}
-	return object.Array(objectContents)
+	arrObj := object.Array(objectContents)
+	return &arrObj
 }
 
 func evaluateHashLiteral(hash *ast.HashLiteral, env *object.Environment) object.Object {
@@ -180,7 +181,8 @@ func evaluateHashLiteral(hash *ast.HashLiteral, env *object.Environment) object.
 			return object.NewError("non-hashable literal key. got=%T (%+v)", key, key)
 		}
 	}
-	return object.Hash(hashMap)
+	hashObj := object.Hash(hashMap)
+	return &hashObj
 }
 
 func evaluateBuiltinFunction(bf *ast.BuiltinFunction) object.Object {
@@ -230,28 +232,28 @@ func evaluateCallExpression(callExpr *ast.CallExpression, env *object.Environmen
 
 func evaluateIndexAccess(idxAccess *ast.IndexAccess, env *object.Environment) object.Object {
 	switch container := Evaluate(idxAccess.Container, env).(type) {
-	case object.Array:
+	case *object.Array:
 		idxObj := Evaluate(idxAccess.Index, env)
 		idx, ok := idxObj.(*object.Integer)
 		if !ok {
 			return object.NewError("arrays may only be indexed with integer values. got=%T (%+v)",
 				idxObj, idxObj)
 		}
-		if idx.Value >= 0 && idx.Value < int64(len(container)) {
-			return container[idx.Value]
-		} else if idx.Value < 0 && idx.Value >= int64(-1*len(container)) {
-			return container[idx.Value+int64(len(container))]
+		if idx.Value >= 0 && idx.Value < int64(len(*container)) {
+			return (*container)[idx.Value]
+		} else if idx.Value < 0 && idx.Value >= int64(-1*len(*container)) {
+			return (*container)[idx.Value+int64(len(*container))]
 		}
 		return object.NewError("index error: %d is out of bounds for an array of length %d",
-			idx.Value, len(container))
-	case object.Hash:
+			idx.Value, len(*container))
+	case *object.Hash:
 		idxObj := Evaluate(idxAccess.Index, env)
 		idx, ok := idxObj.(object.Hashable)
 		if !ok {
 			return object.NewError("index is not hashable. got=%T (%+v)",
 				idxObj, idxObj)
 		}
-		if val, ok := container[idx.Hash()]; ok {
+		if val, ok := (*container)[idx.Hash()]; ok {
 			return val
 		}
 	}

@@ -217,7 +217,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 func (p *Parser) parseAssignmentStatement() *ast.AssignmentStatement {
 	as := &ast.AssignmentStatement{
 		Identifier: &ast.Identifier{p.curToken, p.curToken.Literal},
-		Token: p.curToken,
+		Token:      p.curToken,
 	}
 
 	if !p.expectPeek(token.ASSIGN) {

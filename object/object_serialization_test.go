@@ -66,7 +66,7 @@ func TestCompiledFunctionSerialization(t *testing.T) {
 				code.Make(code.OpClosure, 2, 0),
 				code.Make(code.OpPop),
 			),
-			NumLocals: 1,
+			NumLocals:     1,
 			NumParameters: 2,
 		},
 	}
@@ -85,13 +85,13 @@ func TestCompiledFunctionSerialization(t *testing.T) {
 }
 
 func TestSerializationCorrectness(t *testing.T) {
-	tests := []struct{
+	tests := []struct {
 		object Object
 		bs     []byte
 	}{
 		{
 			object: &Integer{63},
-			bs: []byte{0x01, 0x7e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+			bs:     []byte{0x01, 0x7e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 		},
 		{
 			object: &String{"hello world"},
@@ -109,7 +109,7 @@ func TestSerializationCorrectness(t *testing.T) {
 					code.Make(code.OpEq),
 					code.Make(code.OpReturnValue),
 				),
-				NumLocals: 0,
+				NumLocals:     0,
 				NumParameters: 0,
 			},
 			bs: []byte{
@@ -168,7 +168,7 @@ func testObjectEquality(t *testing.T, a, b Object) bool {
 	}
 	switch a := a.(type) {
 	case *Integer:
-		bVal := b.(*Integer).Value 
+		bVal := b.(*Integer).Value
 		if a.Value != bVal {
 			t.Errorf("unequal integer values: a=%d, b=%d", a.Value, bVal)
 			return false

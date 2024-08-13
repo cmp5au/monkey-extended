@@ -34,9 +34,9 @@ type Object interface {
 }
 
 type HashKey struct {
-	Type ObjectType
+	Type    ObjectType
 	KeyRepr string
-	Value uint64
+	Value   uint64
 }
 
 type Hashable interface {
@@ -133,8 +133,8 @@ func (f *Function) Inspect() string {
 }
 
 type CompiledFunction struct {
-	Instructions code.Instructions
-	NumLocals    int
+	Instructions  code.Instructions
+	NumLocals     int
 	NumParameters int
 }
 
@@ -197,7 +197,7 @@ func (h *Hash) Inspect() string {
 }
 
 type Closure struct {
-	Fn *CompiledFunction
+	Fn   *CompiledFunction
 	Free []Object
 }
 

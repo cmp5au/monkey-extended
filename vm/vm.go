@@ -99,7 +99,7 @@ func (vm *VM) Run() error {
 			}
 			free := make([]object.Object, numFree)
 			for i := 0; i < numFree; i++ {
-				free[i] = vm.stack[vm.sp - numFree + i]
+				free[i] = vm.stack[vm.sp-numFree+i]
 			}
 			vm.sp = vm.sp - numFree
 			if err := vm.push(&object.Closure{Fn: fn, Free: free}); err != nil {
@@ -170,12 +170,12 @@ func (vm *VM) Run() error {
 			localIndex := code.ReadUint8(ins[ip+1:])
 			vm.currentFrame().ip++
 
-			vm.stack[vm.currentFrame().basePointer + int(localIndex)] = vm.pop()
+			vm.stack[vm.currentFrame().basePointer+int(localIndex)] = vm.pop()
 		case code.OpGetLocal:
 			localIndex := code.ReadUint8(ins[ip+1:])
 			vm.currentFrame().ip++
 
-			localObj := vm.stack[vm.currentFrame().basePointer + int(localIndex)]
+			localObj := vm.stack[vm.currentFrame().basePointer+int(localIndex)]
 			if err := vm.push(localObj); err != nil {
 				return err
 			}
@@ -472,18 +472,18 @@ func (vm *VM) popFrame() *Frame {
 }
 
 func (vm *VM) callFunction(numArgs int) error {
-	callee := vm.stack[vm.sp - numArgs - 1]
+	callee := vm.stack[vm.sp-numArgs-1]
 	switch callee := callee.(type) {
 	case *object.Closure:
 		if callee.Fn.NumParameters != numArgs {
 			return fmt.Errorf("wrong number of arguments: want=%d, got=%d",
 				callee.Fn.NumParameters, numArgs)
 		}
-		vm.pushFrame(NewFrame(callee, vm.sp - numArgs))
-		vm.sp = vm.frames[vm.frameIndex - 1].basePointer + callee.Fn.NumLocals
+		vm.pushFrame(NewFrame(callee, vm.sp-numArgs))
+		vm.sp = vm.frames[vm.frameIndex-1].basePointer + callee.Fn.NumLocals
 		return nil
 	case object.Builtin:
-		arg := vm.stack[vm.sp - numArgs]
+		arg := vm.stack[vm.sp-numArgs]
 		argArray, ok := arg.(*object.Array)
 		if !ok {
 			return fmt.Errorf("cannot call builtin with type %T, only object.Array", arg)

@@ -72,7 +72,7 @@ func (l *LetStatement) statementNode() {}
 type AssignmentStatement struct {
 	*Identifier
 	Token token.Token
-	Rhs Expression
+	Rhs   Expression
 }
 
 func (a *AssignmentStatement) TokenLiteral() string {

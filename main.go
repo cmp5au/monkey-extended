@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"strings"
 	"os"
+	"strings"
 
 	"monkey/compiler"
 	"monkey/evaluator"
@@ -27,9 +27,9 @@ monkey [-k | --koko] <kokofile>
 	if file extension is .koko, this option is the default unless additional flags are provided`
 
 var (
-	engine string
+	engine      string
 	outFilePath string
-	koko bool
+	koko        bool
 )
 
 func main() {
@@ -130,7 +130,6 @@ func main() {
 			return
 		}
 
-
 		if outFilePath != "" {
 			outFile, err := os.Create(outFilePath)
 			if err != nil {
@@ -145,7 +144,7 @@ func main() {
 			outFile.Close()
 			return
 		}
-		
+
 		machine := vm.New(c.Bytecode())
 		if err = machine.Run(); err != nil {
 			fmt.Printf("vm error: %s\n", err)

@@ -57,13 +57,13 @@ const (
 	NULL     = "NULL"
 
 	// builtin functions
-	LEN  = "LEN"
-	PUTS = "PUTS"
-	PUSH = "PUSH"
-	POP  = "POP"
+	LEN      = "LEN"
+	PUTS     = "PUTS"
+	PUSH     = "PUSH"
+	POP      = "POP"
 	PUSHLEFT = "PUSHLEFT"
-	POPLEFT = "POPLEFT"
-	DEL  = "DEL"
+	POPLEFT  = "POPLEFT"
+	DEL      = "DEL"
 )
 
 var keywords = map[string]TokenType{

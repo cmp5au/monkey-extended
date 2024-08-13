@@ -2,7 +2,7 @@ package object
 
 import "fmt"
 
-var Builtins = []struct{
+var Builtins = []struct {
 	Name string
 	Builtin
 }{
@@ -38,7 +38,11 @@ var Builtins = []struct{
 				fmt.Println(obj.Value)
 				return nil
 			case *Boolean:
-				if obj.Value { fmt.Println("true") } else { fmt.Println("false") }
+				if obj.Value {
+					fmt.Println("true")
+				} else {
+					fmt.Println("false")
+				}
 				return nil
 			case *Array:
 				fmt.Printf("%v\n", []Object(*obj))
@@ -72,8 +76,8 @@ var Builtins = []struct{
 			if !ok {
 				return &Error{"pop() argument must be an array"}
 			}
-			lastVal := (*arr)[len(*arr) - 1]
-			*arr = (*arr)[:len(*arr) - 1]
+			lastVal := (*arr)[len(*arr)-1]
+			*arr = (*arr)[:len(*arr)-1]
 			return lastVal
 		}),
 	},
@@ -124,7 +128,7 @@ var Builtins = []struct{
 				if idx < 0 || idx >= len(*container) {
 					return &Error{fmt.Sprintf("index %d is not valid for an Array of length %d", idx, len(*container))}
 				}
-				*container = append((*container)[:idx], (*container)[idx + 1:]...)
+				*container = append((*container)[:idx], (*container)[idx+1:]...)
 				return nil
 			case *Hash:
 				hashable, ok := objs[1].(Hashable)

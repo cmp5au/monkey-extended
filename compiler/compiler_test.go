@@ -122,7 +122,7 @@ func TestBooleanExpressions(t *testing.T) {
 		{
 			input:             "11 >= 12",
 			expectedConstants: []interface{}{12, 11},
-expectedInstructions: []code.Instructions{
+			expectedInstructions: []code.Instructions{
 				code.Make(code.OpConstant, 0),
 				code.Make(code.OpConstant, 1),
 				code.Make(code.OpLessThanEq),
@@ -418,7 +418,7 @@ func TestFunctions(t *testing.T) {
 			},
 		},
 		{
-			input:             `fn() {}`,
+			input: `fn() {}`,
 			expectedConstants: []interface{}{
 				[]code.Instructions{
 					code.Make(code.OpNull),
@@ -926,7 +926,6 @@ func TestRecursiveFunctions(t *testing.T) {
 					code.Make(code.OpCall, 1),
 					code.Make(code.OpReturnValue),
 				},
-
 			},
 			expectedInstructions: []code.Instructions{
 				code.Make(code.OpClosure, 3, 0),
@@ -1031,7 +1030,6 @@ func TestForStatements(t *testing.T) {
 
 	runCompilerTests(t, tests)
 }
-
 
 // breaks out common testing code so that each test only has to specify its
 // `compilerTestCase`s

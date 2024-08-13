@@ -14,7 +14,7 @@ type evaluatorTest struct {
 	expected interface{}
 }
 
-type expectedFn struct{
+type expectedFn struct {
 	parameters []string
 	body       string
 }
@@ -130,7 +130,7 @@ func TestBangPrefixUnaryOp(t *testing.T) {
 }
 
 func TestIfElseExpressions(t *testing.T) {
-	tests := []evaluatorTest {
+	tests := []evaluatorTest{
 		{"if (true) { 10 }", 10},
 		{"if (false) { 10 }", nil},
 		{"if (1) { 10 }", 10},
@@ -150,7 +150,7 @@ func TestForStatements(t *testing.T) {
 		{"let i = 0; for (i < 2) { let i = i + 1; continue; break; }; i;", 2},
 		{"let i = 0; for (i < 2) { let i = i + 1; break; continue; }; i;", 1},
 	}
-	
+
 	runEvaluatorTests(t, tests)
 }
 
@@ -307,7 +307,7 @@ func TestBuiltinFunctions(t *testing.T) {
 			},
 		},
 		{
-			input: "let x = 1; del(x);",
+			input:    "let x = 1; del(x);",
 			expected: &object.Error{"del() takes 2 arguments"},
 		},
 		{
@@ -323,11 +323,11 @@ func TestBuiltinFunctions(t *testing.T) {
 			},
 		},
 		{
-			input: `let hash = {"a": 1, true: 2}; del(hash, "b");`,
+			input:    `let hash = {"a": 1, true: 2}; del(hash, "b");`,
 			expected: &object.Error{`entry "b" not found in Hash`},
 		},
 		{
-			input: `let arr = [1, 2, 3]; del(arr, 4);`,
+			input:    `let arr = [1, 2, 3]; del(arr, 4);`,
 			expected: &object.Error{"index 4 is not valid for an Array of length 3"},
 		},
 		{`let arr = [1, 2, 3]; pushleft(arr, 0);`, []int{0, 1, 2, 3}},

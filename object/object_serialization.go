@@ -30,24 +30,24 @@ func (c *CompiledFunction) Serialize() []byte {
 
 func (c *CompiledFunction) Deserialize(bs []byte) int {
 	instructionsLen, n := binary.Varint(bs[1:])
-	if n < 0 || n > 8 || int(instructionsLen) > len(bs) - 25 {
+	if n < 0 || n > 8 || int(instructionsLen) > len(bs)-25 {
 		fmt.Fprintf(os.Stderr, "couldn't read instructions length, got %d bytes: length=%d bytes=%v", n, instructionsLen, bs[1:9])
 		return -1 + n
 	}
 
-	numLocals, n := binary.Varint(bs[9 + int(instructionsLen):])
+	numLocals, n := binary.Varint(bs[9+int(instructionsLen):])
 	if n < 0 || n > 8 {
 		fmt.Fprintf(os.Stderr, "couldn't read numLocals=%d, got %d bytes", numLocals, n)
 		return -9 - int(instructionsLen) + n
 	}
 
-	numParameters, n := binary.Varint(bs[17 + int(instructionsLen):])
+	numParameters, n := binary.Varint(bs[17+int(instructionsLen):])
 	if n < 0 || n > 8 {
 		fmt.Fprintf(os.Stderr, "couldn't read numParameters=%d, got %d bytes", numParameters, n)
 		return -17 - int(instructionsLen) + n
 	}
 
-	c.Instructions = code.Instructions(bs[9 : 9 + int(instructionsLen)])
+	c.Instructions = code.Instructions(bs[9 : 9+int(instructionsLen)])
 	c.NumLocals = int(numLocals)
 	c.NumParameters = int(numParameters)
 
@@ -68,10 +68,10 @@ func (s *String) Serialize() []byte {
 
 func (s *String) Deserialize(bs []byte) int {
 	length, n := binary.Varint(bs[1:9])
-	if n < 0 || n > 8 || int(length) < len(bs) - 9 {
+	if n < 0 || n > 8 || int(length) < len(bs)-9 {
 		return -1 - n
 	}
-	s.Value = string(bs[9 : 9 + int(length)])
+	s.Value = string(bs[9 : 9+int(length)])
 	return 9 + int(length)
 }
 

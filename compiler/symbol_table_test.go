@@ -112,8 +112,8 @@ func TestResolveNestedLocal(t *testing.T) {
 	secondLocal.Define("e")
 	secondLocal.Define("f")
 
-	tests := []struct{
-		table *SymbolTable
+	tests := []struct {
+		table           *SymbolTable
 		expectedSymbols []Symbol
 	}{
 		{
@@ -195,9 +195,9 @@ func TestResolveFree(t *testing.T) {
 	secondLocal.Define("e")
 	secondLocal.Define("f")
 
-	tests := []struct{
-		table *SymbolTable
-		expectedSymbols []Symbol
+	tests := []struct {
+		table               *SymbolTable
+		expectedSymbols     []Symbol
 		expectedFreeSymbols []Symbol
 	}{
 		{

@@ -3,10 +3,10 @@ package compiler
 type SymbolScope string
 
 const (
-	GlobalScope SymbolScope = "GLOBAL"
-	LocalScope SymbolScope = "LOCAL"
-	BuiltinScope SymbolScope = "BUILTIN"
-	FreeScope SymbolScope = "FREE"
+	GlobalScope   SymbolScope = "GLOBAL"
+	LocalScope    SymbolScope = "LOCAL"
+	BuiltinScope  SymbolScope = "BUILTIN"
+	FreeScope     SymbolScope = "FREE"
 	FunctionScope SymbolScope = "FUNCTION"
 )
 
@@ -20,9 +20,9 @@ type SymbolTable struct {
 	store          map[string]Symbol
 	numDefinitions int
 
-	Outer *SymbolTable
+	Outer       *SymbolTable
 	FreeSymbols []Symbol
-	depth int
+	depth       int
 }
 
 func NewSymbolTable() *SymbolTable {

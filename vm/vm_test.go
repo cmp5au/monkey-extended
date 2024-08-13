@@ -123,7 +123,6 @@ func TestAssignmentStatements(t *testing.T) {
 	runVmTests(t, tests)
 }
 
-
 func TestStringExpression(t *testing.T) {
 	tests := []vmTestCase{
 		{`"monkey"`, "monkey"},
@@ -254,7 +253,7 @@ func TestFunctions(t *testing.T) {
 			expected: 50,
 		},
 		{
-			input: `fn(){}()`,
+			input:    `fn(){}()`,
 			expected: NULL,
 		},
 	}
@@ -265,15 +264,15 @@ func TestFunctions(t *testing.T) {
 func TestCallingFunctionsWithWrongArguments(t *testing.T) {
 	tests := []vmTestCase{
 		{
-			input: `fn() { 1; }(1);`,
+			input:    `fn() { 1; }(1);`,
 			expected: `wrong number of arguments: want=0, got=1`,
 		},
 		{
-			input: `fn(a) { a; }();`,
+			input:    `fn(a) { a; }();`,
 			expected: `wrong number of arguments: want=1, got=0`,
 		},
 		{
-			input: `fn(a, b) { a + b; }(1);`,
+			input:    `fn(a, b) { a + b; }(1);`,
 			expected: `wrong number of arguments: want=2, got=1`,
 		},
 	}
@@ -329,7 +328,7 @@ func TestBuiltinFunctions(t *testing.T) {
 			},
 		},
 		{
-			input: "let x = 1; del(x);",
+			input:    "let x = 1; del(x);",
 			expected: &object.Error{"del() takes 2 arguments"},
 		},
 		{
@@ -345,11 +344,11 @@ func TestBuiltinFunctions(t *testing.T) {
 			},
 		},
 		{
-			input: `let hash = {"a": 1, true: 2}; del(hash, "b");`,
+			input:    `let hash = {"a": 1, true: 2}; del(hash, "b");`,
 			expected: &object.Error{`entry "b" not found in Hash`},
 		},
 		{
-			input: `let arr = [1, 2, 3]; del(arr, 4);`,
+			input:    `let arr = [1, 2, 3]; del(arr, 4);`,
 			expected: &object.Error{"index 4 is not valid for an Array of length 3"},
 		},
 		{`let arr = [1, 2, 3]; pushleft(arr, 0);`, []int{0, 1, 2, 3}},
@@ -579,13 +578,13 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 			t.Fatalf("compiler error: %s", err)
 		}
 
-//		fmt.Printf("instructions: %s\n", c.Bytecode().Instructions)
-//		fmt.Println()
-//		fmt.Println("[")
-//		for _, c := range c.Bytecode().Constants {
-//			fmt.Printf("%+v\n", c)
-//		}
-//		fmt.Println("]")
+		//		fmt.Printf("instructions: %s\n", c.Bytecode().Instructions)
+		//		fmt.Println()
+		//		fmt.Println("[")
+		//		for _, c := range c.Bytecode().Constants {
+		//			fmt.Printf("%+v\n", c)
+		//		}
+		//		fmt.Println("]")
 
 		vm := New(c.Bytecode())
 		if err = vm.Run(); err != nil {

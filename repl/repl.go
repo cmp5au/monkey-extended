@@ -51,11 +51,11 @@ func StartInterpretedRepl(in io.Reader, out io.Writer) {
 
 		evaluated := evaluator.Evaluate(program, env)
 		if evaluated != nil && evaluated.Type() != object.NULL {
-		if evaluated.Type() == object.ERROR && (line == "exit" || line == "exit()") {
-		return
-		}
-		io.WriteString(out, evaluated.Inspect())
-		io.WriteString(out, "\n")
+			if evaluated.Type() == object.ERROR && (line == "exit" || line == "exit()") {
+				return
+			}
+			io.WriteString(out, evaluated.Inspect())
+			io.WriteString(out, "\n")
 		}
 	}
 }

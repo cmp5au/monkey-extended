@@ -8,7 +8,7 @@ type Serializable interface {
 type ObjectSerialType byte
 
 const (
-	_ = iota
+	_                        = iota
 	INTEGER ObjectSerialType = iota
 	STRING
 	COMPILEDFN

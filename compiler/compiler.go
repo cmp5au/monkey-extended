@@ -27,7 +27,7 @@ type CompilationScope struct {
 }
 
 type ControlFlow struct {
-	breakStack [][]int
+	breakStack    [][]int
 	continueStack [][]int
 }
 
@@ -44,7 +44,7 @@ func New() *Compiler {
 		instructions:        code.Instructions{},
 		lastInstruction:     EmittedInstruction{},
 		previousInstruction: EmittedInstruction{},
-		controlFlow: ControlFlow{[][]int{}, [][]int{}},
+		controlFlow:         ControlFlow{[][]int{}, [][]int{}},
 	}
 
 	symbolTable := NewSymbolTable()
@@ -65,7 +65,7 @@ func NewWithState(s *SymbolTable, constants []object.Object) *Compiler {
 		instructions:        code.Instructions{},
 		lastInstruction:     EmittedInstruction{},
 		previousInstruction: EmittedInstruction{},
-		controlFlow: ControlFlow{[][]int{{}}, [][]int{{}}},
+		controlFlow:         ControlFlow{[][]int{{}}, [][]int{{}}},
 	}
 
 	return &Compiler{
@@ -193,7 +193,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			if err := c.Compile(node.Condition); err != nil {
 				return err
 			}
-			
+
 			jumpNotTruthyPos = c.emit(code.OpJumpNotTruthy, 9999)
 		}
 		if err := c.Compile(node.Body); err != nil {
@@ -203,10 +203,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if jumpNotTruthyPos != -1 {
 			c.changeOperand(jumpNotTruthyPos, len(c.scopes[c.scopeIndex].instructions))
 		}
-		for _, breakPos := range cf.breakStack[len(cf.breakStack) - 1] {
+		for _, breakPos := range cf.breakStack[len(cf.breakStack)-1] {
 			c.changeOperand(breakPos, len(c.scopes[c.scopeIndex].instructions))
 		}
-		for _, continuePos := range cf.continueStack[len(cf.continueStack) - 1] {
+		for _, continuePos := range cf.continueStack[len(cf.continueStack)-1] {
 			c.changeOperand(continuePos, loopStart)
 		}
 		cf.breakStack = cf.breakStack[:len(cf.breakStack)-1]
@@ -342,8 +342,8 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.loadSymbol(sym)
 		}
 		compiledFn := &object.CompiledFunction{
-			Instructions: instructions,
-			NumLocals:    numLocals,
+			Instructions:  instructions,
+			NumLocals:     numLocals,
 			NumParameters: len(node.Parameters),
 		}
 		c.emit(code.OpClosure, c.addConstant(compiledFn), len(freeSymbols))
@@ -358,7 +358,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		if builtin, ok := node.Function.(*ast.BuiltinFunction); ok {
 			return c.compileBuiltinCall(builtin, node.Arguments)
 		}
-			
+
 		if err := c.Compile(node.Function); err != nil {
 			return err
 		}
@@ -567,7 +567,7 @@ func (b *Bytecode) Deserialize(bs []byte) int {
 			constants = append(constants, f)
 		case byte(serializer.BYTECODE):
 			b.Constants = constants
-			b.Instructions = bs[i + 1:]
+			b.Instructions = bs[i+1:]
 			return len(bs)
 		default:
 			panic(fmt.Sprintf("can't deserialize ObjectSerialType %d", bs[i]))

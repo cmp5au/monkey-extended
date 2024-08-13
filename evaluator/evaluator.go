@@ -16,7 +16,7 @@ var (
 
 	// builtin functions
 	builtins = map[string]object.Builtin{
-		"len": object.GetBuiltinByName("len"),
+		"len":  object.GetBuiltinByName("len"),
 		"puts": object.GetBuiltinByName("puts"),
 	}
 )

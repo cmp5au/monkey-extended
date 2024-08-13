@@ -6,8 +6,8 @@ import (
 )
 
 type Frame struct {
-	cl *object.Closure
-	ip int
+	cl          *object.Closure
+	ip          int
 	basePointer int
 }
 

@@ -1,9 +1,9 @@
 package evaluator
 
 import (
-	"monkey/ast"
-	"monkey/object"
-	"monkey/token"
+	"github.com/cmp5au/monkey-extended/ast"
+	"github.com/cmp5au/monkey-extended/object"
+	"github.com/cmp5au/monkey-extended/token"
 )
 
 // singleton values

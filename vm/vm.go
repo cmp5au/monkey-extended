@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"monkey/code"
-	"monkey/compiler"
-	"monkey/object"
+	"github.com/cmp5au/monkey-extended/code"
+	"github.com/cmp5au/monkey-extended/compiler"
+	"github.com/cmp5au/monkey-extended/object"
 )
 
 const (

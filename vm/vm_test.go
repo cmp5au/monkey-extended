@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"monkey/ast"
-	"monkey/compiler"
-	"monkey/lexer"
-	"monkey/object"
-	"monkey/parser"
+	"github.com/cmp5au/monkey-extended/ast"
+	"github.com/cmp5au/monkey-extended/compiler"
+	"github.com/cmp5au/monkey-extended/lexer"
+	"github.com/cmp5au/monkey-extended/object"
+	"github.com/cmp5au/monkey-extended/parser"
 )
 
 type vmTestCase struct {

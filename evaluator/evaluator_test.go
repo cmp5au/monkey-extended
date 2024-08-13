@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"monkey/lexer"
-	"monkey/object"
-	"monkey/parser"
+	"github.com/cmp5au/monkey-extended/lexer"
+	"github.com/cmp5au/monkey-extended/object"
+	"github.com/cmp5au/monkey-extended/parser"
 )
 
 type evaluatorTest struct {

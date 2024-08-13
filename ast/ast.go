@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"monkey/token"
+	"github.com/cmp5au/monkey-extended/token"
 )
 
 type Node interface {

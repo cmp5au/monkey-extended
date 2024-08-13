@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"monkey/token"
+	"github.com/cmp5au/monkey-extended/token"
 )
 
 type Lexer struct {

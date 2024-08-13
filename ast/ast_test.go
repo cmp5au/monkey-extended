@@ -3,7 +3,7 @@ package ast
 import (
 	"testing"
 
-	"monkey/token"
+	"github.com/cmp5au/monkey-extended/token"
 )
 
 func TestString(t *testing.T) {

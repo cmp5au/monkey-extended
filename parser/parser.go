@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"monkey/ast"
-	"monkey/lexer"
-	"monkey/token"
+	"github.com/cmp5au/monkey-extended/ast"
+	"github.com/cmp5au/monkey-extended/lexer"
+	"github.com/cmp5au/monkey-extended/token"
 )
 
 const (

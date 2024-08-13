@@ -3,10 +3,10 @@ package compiler
 import (
 	"fmt"
 
-	"monkey/ast"
-	"monkey/code"
-	"monkey/object"
-	"monkey/serializer"
+	"github.com/cmp5au/monkey-extended/ast"
+	"github.com/cmp5au/monkey-extended/code"
+	"github.com/cmp5au/monkey-extended/object"
+	"github.com/cmp5au/monkey-extended/serializer"
 )
 
 type Bytecode struct {

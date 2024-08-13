@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"monkey/ast"
-	"monkey/code"
+	"github.com/cmp5au/monkey-extended/ast"
+	"github.com/cmp5au/monkey-extended/code"
 )
 
 const (

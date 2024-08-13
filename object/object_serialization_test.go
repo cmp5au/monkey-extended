@@ -3,8 +3,8 @@ package object
 import (
 	"testing"
 
-	"monkey/code"
-	"monkey/serializer"
+	"github.com/cmp5au/monkey-extended/code"
+	"github.com/cmp5au/monkey-extended/serializer"
 )
 
 func TestIntegerSerialization(t *testing.T) {

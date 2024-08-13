@@ -1,8 +1,8 @@
 package vm
 
 import (
-	"monkey/code"
-	"monkey/object"
+	"github.com/cmp5au/monkey-extended/code"
+	"github.com/cmp5au/monkey-extended/object"
 )
 
 type Frame struct {

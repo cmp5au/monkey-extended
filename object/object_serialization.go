@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"monkey/code"
-	"monkey/serializer"
+	"github.com/cmp5au/monkey-extended/code"
+	"github.com/cmp5au/monkey-extended/serializer"
 )
 
 func (c *CompiledFunction) Serialize() []byte {

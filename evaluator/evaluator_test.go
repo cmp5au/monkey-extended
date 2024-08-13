@@ -81,6 +81,8 @@ func TestEvalStringExpression(t *testing.T) {
 		{"\"a\" >= \"b\"", false},
 		{"\"a\" == \"b\"", false},
 		{"\"a\" != \"b\"", true},
+		{`"hello"[3]`, "l"},
+		{`let x = "hello, world!"; x[12];`, "!"},
 	}
 
 	runEvaluatorTests(t, tests)

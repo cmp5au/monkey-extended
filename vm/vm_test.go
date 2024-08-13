@@ -128,6 +128,8 @@ func TestStringExpression(t *testing.T) {
 		{`"monkey"`, "monkey"},
 		{`"mon" + "key"`, "monkey"},
 		{`{"monkey": "lang"}["monkey"]`, "lang"},
+		{`"hello"[3]`, "l"},
+		{`let x = "hello, world!"; x[12];`, "!"},
 	}
 
 	runVmTests(t, tests)

@@ -256,6 +256,22 @@ func evaluateIndexAccess(idxAccess *ast.IndexAccess, env *object.Environment) ob
 		if val, ok := (*container)[idx.Hash()]; ok {
 			return val
 		}
+	case *object.String:
+		idxObj := Evaluate(idxAccess.Index, env)
+		idx, ok := idxObj.(*object.Integer)
+		if !ok {
+			return object.NewError("strings may only be indexed with integer values. got=%T (%+v)",
+				idxObj, idxObj)
+		}
+		if idx.Value >= 0 && idx.Value < int64(len(container.Value)) {
+			return &object.String{string(container.Value[idx.Value])}
+		} else if idx.Value < 0 && idx.Value >= int64(-1*len(container.Value)) {
+			return &object.String{string(container.Value[idx.Value+int64(len(container.Value))])}
+		}
+		return object.NewError("index error: %d is out of bounds for a string of length %d",
+			idx.Value, len(container.Value))
+	default:
+		return object.NewError("index is not a valid operation for type %T", container)
 	}
 	return NULL
 }

@@ -251,6 +251,10 @@ func (vm *VM) Run() error {
 					if err := vm.push(arr[intIdx.Value]); err != nil {
 						return err
 					}
+				} else if intIdx.Value < 0 && int(intIdx.Value) >= -1 * len(arr) {
+					if err := vm.push(arr[int(intIdx.Value) + len(arr)]); err != nil {
+						return err
+					}
 				} else {
 					vm.push(NULL)
 					return fmt.Errorf("index %d is out of bounds for an array with length %d",
@@ -270,6 +274,27 @@ func (vm *VM) Run() error {
 				}
 				if err := vm.push(val); err != nil {
 					return err
+				}
+			case *object.String:
+				intIdx, ok := idxObj.(*object.Integer)
+				if !ok {
+					return fmt.Errorf("cannot use an instance of type %T (%+v) as a string index",
+						idxObj, idxObj)
+				}
+				s := container.Value
+				idx := int(intIdx.Value)
+				if 0 <= idx && idx < len(s) {
+					if err := vm.push(&object.String{string(s[idx])}); err != nil {
+						return err
+					}
+				} else if idx < 0 && idx >= -1 * len(s) {
+					if err := vm.push(&object.String{string(s[idx + len(s)])}); err != nil {
+						return err
+					}
+				} else {
+					vm.push(NULL)
+					return fmt.Errorf("index %d is out of bounds for an say with length %d",
+						idx, len(s))
 				}
 			default:
 				return fmt.Errorf("cannot index into an instance of type %T (%+v)",

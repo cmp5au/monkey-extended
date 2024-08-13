@@ -11,7 +11,7 @@
 - ability to set free variables within the scope of the closure
 - deque methods for Array type: `push`, `pop`, `pushleft`, `popleft`
 - `delete` builtin for removal from Array or Hash types
-- String operators: concatenation with + and comparators (==, !=, <, >, <=, >=)
+- String operators: concatenation with +, comparators (==, !=, <, >, <=, >=), indexing
 - `null` literal
 - bytecode (de)serialization
 - support for running Monkey scripts

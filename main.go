@@ -16,13 +16,13 @@ import (
 )
 
 const USAGE = `USAGE:
-monkey [(-e | --engine) <engine>]
+monkey-extended [(-e | --engine) <engine>]
 	start REPL using the desired engine
-monkey [(-e | --engine) <engine>] [(-o | --out) <outfile>] <monkeyfile>
+monkey-extended [(-e | --engine) <engine>] [(-o | --out) <outfile>] <monkeyfile>
 	evaluate the input monkeyfile using the engine of choice
 	if -o,--out option is provided, engine must be "vm"
 	if file extension is not .koko, this option is the default unless additional flags are provided
-monkey [-k | --koko] <kokofile>
+monkey-extended [-k | --koko] <kokofile>
 	interpret the koko bytecode and run the program within
 	if file extension is .koko, this option is the default unless additional flags are provided`
 

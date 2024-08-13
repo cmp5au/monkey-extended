@@ -5,8 +5,21 @@
 
 ## Usage
 ```
-$ go install github.com/cmp5au/monkey-extended@latest
+go install github.com/cmp5au/monkey-extended@latest
+$(go env GOPATH)/bin/monkey-extended <options>
 ```
+
+### Options
+- monkey-extended [(-e | --engine) <engine>]
+	- start REPL using the desired engine ("vm" or "evaluator")
+- monkey-extended [(-e | --engine) <engine>] [(-o | --out) <outfile>] <monkeyfile>
+	- evaluate the input monkeyfile using the engine of choice
+	- if -o,--out option is provided, engine must be "vm"
+	- if file extension is not .koko, this option is the default unless additional flags are provided
+- monkey-extended [-k | --koko] <kokofile>
+	- interpret the koko bytecode and run the program within
+	- if file extension is .koko, this option is the default unless additional flags are provided
+
 
 ## Added Behavior
 - `for` loops

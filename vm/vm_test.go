@@ -44,6 +44,10 @@ func TestBooleanExpressions(t *testing.T) {
 		{"false != false", false},
 		{"!true", false},
 		{"!false", true},
+		{`"a" < "b"`, true},
+		{`"a" >= "b"`, false},
+		{`"a" <= "a"`, true},
+		{`"b" > "b"`, false},
 	}
 
 	runVmTests(t, tests)

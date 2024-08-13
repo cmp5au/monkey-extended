@@ -438,6 +438,18 @@ func (vm *VM) executeStringBinaryOp(lhs, rhs object.Object, op code.Opcode) erro
 		} else {
 			return vm.push(FALSE)
 		}
+	case code.OpLessThan:
+		if leftVal < rightVal {
+			return vm.push(TRUE)
+		} else {
+			return vm.push(FALSE)
+		}
+	case code.OpLessThanEq:
+		if leftVal <= rightVal {
+			return vm.push(TRUE)
+		} else {
+			return vm.push(FALSE)
+		}
 	case code.OpAdd:
 		return vm.push(&object.String{Value: leftVal + rightVal})
 	default:

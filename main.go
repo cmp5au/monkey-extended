@@ -24,8 +24,7 @@ monkey [(-e | --engine) <engine>] [(-o | --out) <outfile>] <monkeyfile>
 	if file extension is not .koko, this option is the default unless additional flags are provided
 monkey [-k | --koko] <kokofile>
 	interpret the koko bytecode and run the program within
-	if file extension is .koko, this option is the default unless additional flags are provided
-`
+	if file extension is .koko, this option is the default unless additional flags are provided`
 
 var (
 	engine string

@@ -62,6 +62,10 @@ func TestEvalBooleanExpression(t *testing.T) {
 		{"(1 < 2) == false", false},
 		{"(1 > 2) == true", false},
 		{"(1 > 2) == false", true},
+		{`"a" < "b"`, true},
+		{`"a" >= "b"`, false},
+		{`"a" <= "a"`, true},
+		{`"b" > "b"`, false},
 	}
 
 	runEvaluatorTests(t, tests)

@@ -793,8 +793,6 @@ func TestClosures(t *testing.T) {
 
 					fn() {
 						let c = 88;
-						a = a + 1;
-						b = b + 1;
 						global + a + b + c;
 					}
 				}
@@ -805,23 +803,9 @@ func TestClosures(t *testing.T) {
 				66,
 				77,
 				88,
-				1,
-				1,
 				[]code.Instructions{
 					code.Make(code.OpConstant, 3),
 					code.Make(code.OpSetLocal, 0),
-					code.Make(code.OpNull),
-					code.Make(code.OpPop),
-					code.Make(code.OpGetFree, 0),
-					code.Make(code.OpConstant, 4),
-					code.Make(code.OpAdd),
-					code.Make(code.OpSetFree, 0),
-					code.Make(code.OpNull),
-					code.Make(code.OpPop),
-					code.Make(code.OpGetFree, 1),
-					code.Make(code.OpConstant, 5),
-					code.Make(code.OpAdd),
-					code.Make(code.OpSetFree, 1),
 					code.Make(code.OpNull),
 					code.Make(code.OpPop),
 					code.Make(code.OpGetGlobal, 0),
@@ -840,7 +824,7 @@ func TestClosures(t *testing.T) {
 					code.Make(code.OpPop),
 					code.Make(code.OpGetFree, 0),
 					code.Make(code.OpGetLocal, 0),
-					code.Make(code.OpClosure, 6, 2),
+					code.Make(code.OpClosure, 4, 2),
 					code.Make(code.OpReturnValue),
 				},
 				[]code.Instructions{
@@ -849,7 +833,7 @@ func TestClosures(t *testing.T) {
 					code.Make(code.OpNull),
 					code.Make(code.OpPop),
 					code.Make(code.OpGetLocal, 0),
-					code.Make(code.OpClosure, 7, 1),
+					code.Make(code.OpClosure, 5, 1),
 					code.Make(code.OpReturnValue),
 				},
 			},
@@ -858,7 +842,44 @@ func TestClosures(t *testing.T) {
 				code.Make(code.OpSetGlobal, 0),
 				code.Make(code.OpNull),
 				code.Make(code.OpPop),
-				code.Make(code.OpClosure, 8, 0),
+				code.Make(code.OpClosure, 6, 0),
+				code.Make(code.OpPop),
+			},
+		},
+		{
+			input: `
+			let f = fn() {
+				let a = 1;
+				fn() {
+					let a = a + 1;
+				};
+			};
+			`,
+			expectedConstants: []interface{}{
+				1,
+				1,
+				[]code.Instructions{
+					code.Make(code.OpGetFree, 0),
+					code.Make(code.OpConstant, 1),
+					code.Make(code.OpAdd),
+					code.Make(code.OpSetLocal, 0),
+					code.Make(code.OpNull),
+					code.Make(code.OpReturnValue),
+				},
+				[]code.Instructions{
+					code.Make(code.OpConstant, 0),
+					code.Make(code.OpSetLocal, 0),
+					code.Make(code.OpNull),
+					code.Make(code.OpPop),
+					code.Make(code.OpGetLocal, 0),
+					code.Make(code.OpClosure, 2, 1),
+					code.Make(code.OpReturnValue),
+				},
+			},
+			expectedInstructions: []code.Instructions{
+				code.Make(code.OpClosure, 3, 0),
+				code.Make(code.OpSetGlobal, 0),
+				code.Make(code.OpNull),
 				code.Make(code.OpPop),
 			},
 		},
@@ -1029,6 +1050,28 @@ func TestForStatements(t *testing.T) {
 	}
 
 	runCompilerTests(t, tests)
+}
+
+func TestCompilerErrors(t *testing.T) {
+	input := `
+		let f = fn() {
+			let a = 1;
+			fn() {
+				a = a + 1;
+			};
+		};`
+	expected := "variable a not declared in scope"
+	
+	program := parse(input)
+	compiler := New()
+	err := compiler.Compile(program)
+
+	if err == nil {
+		t.Fatalf("expected error: %q", expected)
+	}
+	if err.Error() != "variable a not declared in scope" {
+		t.Fatalf("incorrect error: expected=%q, got=%q", expected, err.Error())
+	}
 }
 
 // breaks out common testing code so that each test only has to specify its

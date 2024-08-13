@@ -17,16 +17,16 @@ func NewEnvironment(parent ...*Environment) *Environment {
 	return &Environment{store: s, parent: p}
 }
 
-func (e *Environment) Get(name string) (Object, bool) {
+func (e *Environment) Get(name string, local bool) (Object, bool) {
 	obj, ok := e.store[name]
-	if !ok && e.parent != nil {
-		obj, ok = e.parent.Get(name)
+	if !ok && !local && e.parent != nil {
+		obj, ok = e.parent.Get(name, local)
 	}
 	return obj, ok
 }
 
 func (e *Environment) Set(name string, val Object, setIfAbsent bool) Object {
-	_, ok := e.Get(name)
+	_, ok := e.Get(name, true)
 	if !setIfAbsent && !ok && e.parent != nil {
 		return e.parent.Set(name, val, setIfAbsent)
 	}

@@ -47,8 +47,11 @@ var Builtins = []struct {
 			case *Array:
 				fmt.Printf("%v\n", []Object(*obj))
 				return nil
+			case *Error:
+				fmt.Printf("ERROR: %s\n", obj.Message)
+				return nil
 			default:
-				return &Error{"puts() argument cannot be of type %T"}
+				return &Error{fmt.Sprintf("puts() argument cannot be of type %T", obj)}
 			}
 		}),
 	},

@@ -188,10 +188,6 @@ func (vm *VM) Run() error {
 			if err := vm.push(definition.Builtin); err != nil {
 				return err
 			}
-		case code.OpSetFree:
-			freeIndex := code.ReadUint8(ins[ip+1:])
-			vm.currentFrame().ip++
-			vm.currentFrame().cl.Free[freeIndex] = vm.pop()
 		case code.OpGetFree:
 			freeIndex := code.ReadUint8(ins[ip+1:])
 			vm.currentFrame().ip++

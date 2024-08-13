@@ -102,22 +102,6 @@ func TestAssignmentStatements(t *testing.T) {
 			`,
 			expected: 11100, // 10000 + 11 * 100 = 11100
 		},
-		{ // test setting local from within enclosed scope
-			input: `
-			let a = 10;
-			let f = fn() {
-				let b = 100;
-				let g = fn() {
-					b = b + 1;
-					let c = 10000;
-					return c;
-				};
-				return g() + a * b;
-			};
-			f();
-			`,
-			expected: 11000, // 10000 + 10 * 100 = 11000
-		},
 	}
 
 	runVmTests(t, tests)

@@ -135,19 +135,19 @@ func evaluateLetStatement(letStmt *ast.LetStatement, env *object.Environment) ob
 }
 
 func evaluateAssignmentStatement(assignStmt *ast.AssignmentStatement, env *object.Environment) object.Object {
-	if _, ok := env.Get(assignStmt.Identifier.Value); !ok {
+	if _, ok := env.Get(assignStmt.Identifier.Value, true); !ok {
 		return object.NewError("identifier %s has not been declared in scope", assignStmt.Identifier.Value)
 	}
 	obj := Evaluate(assignStmt.Rhs, env)
 	if isError(obj) {
 		return obj
 	}
-	env.Set(assignStmt.Identifier.Value, obj, false) // setIfAbsent = false allows us to modify in parent scope(s)
+	env.Set(assignStmt.Identifier.Value, obj, true) // setIfAbsent = false allows us to modify in parent scope(s)
 	return NULL
 }
 
 func evaluateIdentifier(id *ast.Identifier, env *object.Environment) object.Object {
-	if val, ok := env.Get(id.Value); !ok {
+	if val, ok := env.Get(id.Value, false); !ok {
 		return object.NewError("identifier not found: %s", id.Value)
 	} else {
 		return val

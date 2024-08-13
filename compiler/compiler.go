@@ -103,14 +103,14 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 		c.emit(code.OpPop)
 	case *ast.LetStatement:
-		symbol, ok := c.symbolTable.Resolve(node.Identifier.Value, false)
-		if !ok || symbol.Scope == FunctionScope {
-			symbol = c.symbolTable.Define(node.Identifier.Value)
-		}
 		if node.Rhs == nil {
 			c.emit(code.OpNull)
 		} else if err := c.Compile(node.Rhs); err != nil {
 			return err
+		}
+		symbol, ok := c.symbolTable.Resolve(node.Identifier.Value, false)
+		if !ok || symbol.Scope == FreeScope || symbol.Scope == FunctionScope {
+			symbol = c.symbolTable.Define(node.Identifier.Value)
 		}
 		if symbol.Scope == GlobalScope {
 			c.emit(code.OpSetGlobal, symbol.Index)
@@ -133,7 +133,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		case LocalScope:
 			c.emit(code.OpSetLocal, symbol.Index)
 		case FreeScope:
-			c.emit(code.OpSetFree, symbol.Index)
+			return fmt.Errorf("variable %s not declared in scope", symbol.Name)
 		case BuiltinScope:
 			return fmt.Errorf("cannot assign to builtin function")
 		case FunctionScope:

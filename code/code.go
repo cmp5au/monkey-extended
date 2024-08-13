@@ -80,7 +80,6 @@ const (
 	OpGetGlobal
 	OpSetLocal
 	OpGetLocal
-	OpSetFree
 	OpGetFree
 	OpCurrentClosure
 	OpArray
@@ -115,7 +114,6 @@ var definitions = map[Opcode]*Definition{
 	OpGetGlobal:      {"OpGetGlobal", []int{2}},
 	OpSetLocal:       {"OpSetLocal", []int{1}},
 	OpGetLocal:       {"OpGetLocal", []int{1}},
-	OpSetFree:        {"OpSetFree", []int{1}},
 	OpGetFree:        {"OpGetFree", []int{1}},
 	OpCurrentClosure: {"OpCurrentClosure", []int{}},
 	OpArray:          {"OpArray", []int{2}},

@@ -61,6 +61,8 @@ const (
 	PUTS = "PUTS"
 	PUSH = "PUSH"
 	POP  = "POP"
+	PUSHLEFT = "PUSHLEFT"
+	POPLEFT = "POPLEFT"
 	DEL  = "DEL"
 )
 
@@ -80,6 +82,8 @@ var keywords = map[string]TokenType{
 	"puts":     PUTS,
 	"push":     PUSH,
 	"pop":      POP,
+	"pushleft": PUSHLEFT,
+	"popleft":  POPLEFT,
 	"del":      DEL,
 }
 

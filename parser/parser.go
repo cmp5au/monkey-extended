@@ -41,6 +41,8 @@ var builtinFunctions []token.TokenType = []token.TokenType{
 	token.PUTS,
 	token.PUSH,
 	token.POP,
+	token.PUSHLEFT,
+	token.POPLEFT,
 	token.DEL,
 }
 

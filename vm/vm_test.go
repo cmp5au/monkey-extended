@@ -352,6 +352,10 @@ func TestBuiltinFunctions(t *testing.T) {
 			input: `let arr = [1, 2, 3]; del(arr, 4);`,
 			expected: &object.Error{"index 4 is not valid for an Array of length 3"},
 		},
+		{`let arr = [1, 2, 3]; pushleft(arr, 0);`, []int{0, 1, 2, 3}},
+		{`let arr = [1, 2, 3]; pushleft(arr, 0); arr;`, []int{0, 1, 2, 3}},
+		{`let arr = [1, 2, 3]; popleft(arr);`, 1},
+		{`let arr = [1, 2, 3]; popleft(arr); arr;`, []int{2, 3}},
 	}
 
 	runVmTests(t, tests)

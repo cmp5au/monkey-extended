@@ -78,6 +78,37 @@ var Builtins = []struct{
 		}),
 	},
 	{
+		Name: "pushleft",
+		Builtin: Builtin(func(objs []Object) Object {
+			if len(objs) != 2 {
+				return &Error{"pushleft() takes 2 arguments"}
+			}
+			arr, ok := objs[0].(*Array)
+			if !ok {
+				return &Error{"first argument to pushleft() must be an array"}
+			}
+			newArr := []Object{objs[1]}
+			newArr = append(newArr, (*arr)...)
+			*arr = Array(newArr)
+			return arr
+		}),
+	},
+	{
+		Name: "popleft",
+		Builtin: Builtin(func(objs []Object) Object {
+			if len(objs) != 1 {
+				return &Error{"popleft() takes 1 argument"}
+			}
+			arr, ok := objs[0].(*Array)
+			if !ok {
+				return &Error{"popleft() argument must be an array"}
+			}
+			firstVal := (*arr)[0]
+			*arr = (*arr)[1:]
+			return firstVal
+		}),
+	},
+	{
 		Name: "del",
 		Builtin: Builtin(func(objs []Object) Object {
 			if len(objs) != 2 {

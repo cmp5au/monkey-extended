@@ -10,7 +10,7 @@
 - variable assignment without `let` for already-defined variables (ex: `let x; x = 1;`)
 - ability to set free variables within the scope of the closure
 - deque methods for Array type: `push`, `pop`, `pushleft`, `popleft`
-- COMING SOON: `delete` builtin for removal from Array or Hash types
+- `delete` builtin for removal from Array or Hash types
 - String operators: concatenation with + and comparators (==, !=, <, >, <=, >=)
 - `null` literal
 - bytecode (de)serialization

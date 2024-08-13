@@ -319,6 +319,39 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`push([], 1)`, []int{1}},
 		{`push(1, 1)`, &object.Error{"first argument to push() must be an array"}},
 		{`let arr = [1, 2, 3]; pop(arr); arr;`, []int{1, 2}},
+		{`let arr = [1, 2, 3]; del(arr, 1);`, NULL},
+		{`let arr = [1, 2, 3]; del(arr, 1); arr;`, []int{1, 3}},
+		{`let hash = {"a": 1, true: 2}; del(hash, "a");`, NULL},
+		{
+			input: `let hash = {"a": 1, true: 2}; del(hash, true); hash`,
+			expected: map[string]object.Object{
+				"a": &object.Integer{1},
+			},
+		},
+		{
+			input: "let x = 1; del(x);",
+			expected: &object.Error{"del() takes 2 arguments"},
+		},
+		{
+			input: "let x = 1; del(x, 1);",
+			expected: &object.Error{
+				Message: "first argument to del() must be an Array or Hash",
+			},
+		},
+		{
+			input: `let hash = {"a": 1, true: 2}; del(hash, ["a"]);`,
+			expected: &object.Error{
+				Message: "cannot delete non-hashable key of type *object.Array from Hash",
+			},
+		},
+		{
+			input: `let hash = {"a": 1, true: 2}; del(hash, "b");`,
+			expected: &object.Error{`entry "b" not found in Hash`},
+		},
+		{
+			input: `let arr = [1, 2, 3]; del(arr, 4);`,
+			expected: &object.Error{"index 4 is not valid for an Array of length 3"},
+		},
 	}
 
 	runVmTests(t, tests)

@@ -61,6 +61,7 @@ const (
 	PUTS = "PUTS"
 	PUSH = "PUSH"
 	POP  = "POP"
+	DEL  = "DEL"
 )
 
 var keywords = map[string]TokenType{
@@ -79,6 +80,7 @@ var keywords = map[string]TokenType{
 	"puts":     PUTS,
 	"push":     PUSH,
 	"pop":      POP,
+	"del":      DEL,
 }
 
 func LookupIdent(ident string) TokenType {

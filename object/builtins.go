@@ -77,6 +77,41 @@ var Builtins = []struct{
 			return lastVal
 		}),
 	},
+	{
+		Name: "del",
+		Builtin: Builtin(func(objs []Object) Object {
+			if len(objs) != 2 {
+				return &Error{"del() takes 2 arguments"}
+			}
+			switch container := objs[0].(type) {
+			case *Array:
+				intObj, ok := objs[1].(*Integer)
+				if !ok {
+					return &Error{"must supply Integer index to delete() for an Array"}
+				}
+				idx := int(intObj.Value)
+				if idx < 0 || idx >= len(*container) {
+					return &Error{fmt.Sprintf("index %d is not valid for an Array of length %d", idx, len(*container))}
+				}
+				*container = append((*container)[:idx], (*container)[idx + 1:]...)
+				return nil
+			case *Hash:
+				hashable, ok := objs[1].(Hashable)
+				if !ok {
+					return &Error{fmt.Sprintf("cannot delete non-hashable key of type %T from Hash", objs[1])}
+				}
+				// hash := map[HashKey]Object(container)
+				if _, ok := (*container)[hashable.Hash()]; ok {
+					delete(*container, hashable.Hash())
+					return nil
+				} else {
+					return &Error{fmt.Sprintf("entry %s not found in Hash", objs[1].Inspect())}
+				}
+			default:
+				return &Error{"first argument to del() must be an Array or Hash"}
+			}
+		}),
+	},
 }
 
 func GetBuiltinByName(name string) Builtin {

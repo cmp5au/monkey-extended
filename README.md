@@ -1,5 +1,5 @@
 # monkey-extended 
-<img src="monkey_logo.png" width="100" height="100">
+<img src="monkey_logo_contrast.png" width="100" height="100">
 
 [monkey website](https://monkeylang.org)
 

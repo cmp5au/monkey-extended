@@ -3,6 +3,11 @@
 
 [monkey website](https://monkeylang.org)
 
+## Usage
+```
+$ go install github.com/cmp5au/monkey-extended@latest
+```
+
 ## Added Behavior
 - `for` loops
     - `break` and `continue` control flow statements

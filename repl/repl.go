@@ -99,7 +99,7 @@ func StartCompiledRepl(in io.Reader, out io.Writer) {
 		bytecode := comp.Bytecode()
 		constants = bytecode.Constants
 
-		machine := vm.NewWithGlobalsStore(bytecode, globals)
+		machine := vm.NewWithGlobalsStore(bytecode, globals, false)
 		err = machine.Run()
 		if err != nil {
 			fmt.Fprintf(out, "Whoops! Executing bytecode failed:\n %s\n", err)

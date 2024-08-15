@@ -6,6 +6,7 @@ import (
 
 	"github.com/cmp5au/monkey-extended/code"
 	"github.com/cmp5au/monkey-extended/compiler"
+	"github.com/cmp5au/monkey-extended/experimental/jit"
 	"github.com/cmp5au/monkey-extended/object"
 )
 
@@ -32,13 +33,17 @@ type VM struct {
 	frameIndex int
 }
 
-func New(bytecode *compiler.Bytecode) *VM {
+func New(bytecode *compiler.Bytecode, jitEnabled bool) *VM {
 	mainFn := &object.CompiledFunction{Instructions: bytecode.Instructions}
 	mainClosure := &object.Closure{Fn: mainFn}
 	mainFrame := NewFrame(mainClosure, 0)
 
 	frames := make([]*Frame, MaxFrames)
 	frames[0] = mainFrame
+
+	if jitEnabled {
+		jit.JitCompileFunctions(bytecode.Constants)
+	}
 
 	return &VM{
 		constants:  bytecode.Constants,
@@ -50,13 +55,17 @@ func New(bytecode *compiler.Bytecode) *VM {
 	}
 }
 
-func NewWithGlobalsStore(bytecode *compiler.Bytecode, s []object.Object) *VM {
+func NewWithGlobalsStore(bytecode *compiler.Bytecode, s []object.Object, jitEnabled bool) *VM {
 	mainFn := &object.CompiledFunction{Instructions: bytecode.Instructions}
 	mainClosure := &object.Closure{Fn: mainFn}
 	mainFrame := NewFrame(mainClosure, 0)
 
 	frames := make([]*Frame, MaxFrames)
 	frames[0] = mainFrame
+
+	if jitEnabled {
+		jit.JitCompileFunctions(bytecode.Constants)
+	}
 
 	return &VM{
 		constants:  bytecode.Constants,

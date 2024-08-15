@@ -270,7 +270,7 @@ func TestCallingFunctionsWithWrongArguments(t *testing.T) {
 			t.Fatalf("compiler error: %s", err)
 		}
 
-		vm := New(comp.Bytecode())
+		vm := New(comp.Bytecode(), false)
 		err := vm.Run()
 		if err == nil {
 			t.Fatalf("expected VM error but resulted in none.")
@@ -572,7 +572,7 @@ func runVmTests(t *testing.T, tests []vmTestCase) {
 		//		}
 		//		fmt.Println("]")
 
-		vm := New(c.Bytecode())
+		vm := New(c.Bytecode(), false)
 		if err = vm.Run(); err != nil {
 			t.Fatalf("vm error: %s", err)
 		}

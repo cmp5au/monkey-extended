@@ -94,7 +94,7 @@ func main() {
 				fmt.Printf("unable to deserialize koko bytecode, could only read %d/%d bytes\n", n, len(kokoBuffer))
 				return
 			}
-			machine := vm.New(bytecode)
+			machine := vm.New(bytecode, false)
 			if err = machine.Run(); err != nil {
 				fmt.Printf("vm error: %s\n", err)
 			}
@@ -145,7 +145,7 @@ func main() {
 			return
 		}
 
-		machine := vm.New(c.Bytecode())
+		machine := vm.New(c.Bytecode(), false)
 		if err = machine.Run(); err != nil {
 			fmt.Printf("vm error: %s\n", err)
 		}

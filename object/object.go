@@ -138,17 +138,6 @@ type JitInstructions struct {
 	MachineCodeInstructions []byte
 }
 
-// can panic, TODO: add defer recover to harden this function
-func (j *JitInstructions) tryRunMachineCode() Object {
-	defer j.Unlock()
-	j.Lock()
-	if j.MachineCodeInstructions == nil {
-		return nil
-	}
-	// TODO: execute machine code here
-	return nil
-}
-
 type CompiledFunction struct {
 	Instructions  code.Instructions
 	NumLocals     int

@@ -1061,7 +1061,7 @@ func TestCompilerErrors(t *testing.T) {
 			};
 		};`
 	expected := "variable a not declared in scope"
-	
+
 	program := parse(input)
 	compiler := New()
 	err := compiler.Compile(program)

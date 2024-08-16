@@ -31,6 +31,9 @@ type VM struct {
 
 	frames     []*Frame
 	frameIndex int
+
+	// experimental; default off
+	jitEnabled bool
 }
 
 func New(bytecode *compiler.Bytecode, jitEnabled bool) *VM {
@@ -41,10 +44,6 @@ func New(bytecode *compiler.Bytecode, jitEnabled bool) *VM {
 	frames := make([]*Frame, MaxFrames)
 	frames[0] = mainFrame
 
-	if jitEnabled {
-		jit.JitCompileFunctions(bytecode.Constants)
-	}
-
 	return &VM{
 		constants:  bytecode.Constants,
 		globals:    make([]object.Object, GlobalsSize),
@@ -52,6 +51,7 @@ func New(bytecode *compiler.Bytecode, jitEnabled bool) *VM {
 		sp:         0,
 		frames:     frames,
 		frameIndex: 1,
+		jitEnabled: jitEnabled,
 	}
 }
 
@@ -63,10 +63,6 @@ func NewWithGlobalsStore(bytecode *compiler.Bytecode, s []object.Object, jitEnab
 	frames := make([]*Frame, MaxFrames)
 	frames[0] = mainFrame
 
-	if jitEnabled {
-		jit.JitCompileFunctions(bytecode.Constants)
-	}
-
 	return &VM{
 		constants:  bytecode.Constants,
 		globals:    s,
@@ -74,6 +70,7 @@ func NewWithGlobalsStore(bytecode *compiler.Bytecode, s []object.Object, jitEnab
 		sp:         0,
 		frames:     frames,
 		frameIndex: 1,
+		jitEnabled: jitEnabled,
 	}
 }
 
@@ -81,6 +78,10 @@ func (vm *VM) Run() error {
 	var ip int
 	var ins code.Instructions
 	var op code.Opcode
+
+	if vm.jitEnabled {
+		jit.JitCompileFunctions(vm.constants)
+	}
 
 	for vm.currentFrame().ip < len(vm.currentFrame().Instructions())-1 {
 		vm.currentFrame().ip++
@@ -256,8 +257,8 @@ func (vm *VM) Run() error {
 					if err := vm.push(arr[intIdx.Value]); err != nil {
 						return err
 					}
-				} else if intIdx.Value < 0 && int(intIdx.Value) >= -1 * len(arr) {
-					if err := vm.push(arr[int(intIdx.Value) + len(arr)]); err != nil {
+				} else if intIdx.Value < 0 && int(intIdx.Value) >= -1*len(arr) {
+					if err := vm.push(arr[int(intIdx.Value)+len(arr)]); err != nil {
 						return err
 					}
 				} else {
@@ -292,8 +293,8 @@ func (vm *VM) Run() error {
 					if err := vm.push(&object.String{string(s[idx])}); err != nil {
 						return err
 					}
-				} else if idx < 0 && idx >= -1 * len(s) {
-					if err := vm.push(&object.String{string(s[idx + len(s)])}); err != nil {
+				} else if idx < 0 && idx >= -1*len(s) {
+					if err := vm.push(&object.String{string(s[idx+len(s)])}); err != nil {
 						return err
 					}
 				} else {
@@ -509,6 +510,9 @@ func (vm *VM) callFunction(numArgs int) error {
 			return fmt.Errorf("wrong number of arguments: want=%d, got=%d",
 				callee.Fn.NumParameters, numArgs)
 		}
+		if vm.jitEnabled && vm.callFunctionViaJit(callee) {
+			return nil
+		}
 		vm.pushFrame(NewFrame(callee, vm.sp-numArgs))
 		vm.sp = vm.frames[vm.frameIndex-1].basePointer + callee.Fn.NumLocals
 		return nil
@@ -529,6 +533,23 @@ func (vm *VM) callFunction(numArgs int) error {
 	default:
 		return fmt.Errorf("calling non-function")
 	}
+}
+
+func (vm *VM) callFunctionViaJit(callee *object.Closure) (success bool) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println(r)
+			success = false
+		}
+	}()
+	defer callee.Fn.JitInstructions.Unlock()
+	callee.Fn.JitInstructions.Lock()
+	if callee.Fn.JitInstructions.MachineCodeInstructions == nil {
+		return false
+	}
+
+	jit.ExecMem(callee.Fn.JitInstructions.MachineCodeInstructions, vm.sp)
+	return true
 }
 
 func isTruthy(obj object.Object) bool {

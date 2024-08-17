@@ -16,12 +16,6 @@ const (
 	StackSize   = 2048
 )
 
-var (
-	TRUE  = &object.Boolean{Value: true}
-	FALSE = &object.Boolean{Value: false}
-	NULL  = &object.Null{}
-)
-
 type VM struct {
 	constants []object.Object
 	globals   []object.Object
@@ -116,15 +110,15 @@ func (vm *VM) Run() error {
 				return err
 			}
 		case code.OpTrue:
-			if err := vm.push(TRUE); err != nil {
+			if err := vm.push(object.TrueS); err != nil {
 				return err
 			}
 		case code.OpFalse:
-			if err := vm.push(FALSE); err != nil {
+			if err := vm.push(object.FalseS); err != nil {
 				return err
 			}
 		case code.OpNull:
-			if err := vm.push(NULL); err != nil {
+			if err := vm.push(object.NullS); err != nil {
 				return err
 			}
 		case code.OpAdd, code.OpSub, code.OpMul, code.OpDiv, code.OpEq, code.OpNeq, code.OpLessThan, code.OpLessThanEq:
@@ -135,9 +129,9 @@ func (vm *VM) Run() error {
 			obj := vm.pop()
 			var err error
 			if isTruthy(obj) {
-				err = vm.push(FALSE)
+				err = vm.push(object.FalseS)
 			} else {
-				err = vm.push(TRUE)
+				err = vm.push(object.TrueS)
 			}
 			if err != nil {
 				return err
@@ -262,7 +256,7 @@ func (vm *VM) Run() error {
 						return err
 					}
 				} else {
-					vm.push(NULL)
+					vm.push(object.NullS)
 					return fmt.Errorf("index %d is out of bounds for an array with length %d",
 						intIdx.Value, len(arr))
 				}
@@ -275,7 +269,7 @@ func (vm *VM) Run() error {
 				hash := map[object.HashKey]object.Object(*container)
 				val, ok := hash[hashableIdx.Hash()]
 				if !ok {
-					vm.push(NULL)
+					vm.push(object.NullS)
 					return fmt.Errorf("index error for index %q", idxObj.Inspect())
 				}
 				if err := vm.push(val); err != nil {
@@ -298,7 +292,7 @@ func (vm *VM) Run() error {
 						return err
 					}
 				} else {
-					vm.push(NULL)
+					vm.push(object.NullS)
 					return fmt.Errorf("index %d is out of bounds for an say with length %d",
 						idx, len(s))
 				}
@@ -317,7 +311,7 @@ func (vm *VM) Run() error {
 		case code.OpReturn:
 			vm.sp = vm.popFrame().basePointer - 1
 
-			if err := vm.push(NULL); err != nil {
+			if err := vm.push(object.NullS); err != nil {
 				return err
 			}
 		case code.OpCall:
@@ -405,27 +399,27 @@ func (vm *VM) executeIntegerBinaryOp(lhs, rhs object.Object, op code.Opcode) err
 		return vm.push(&object.Integer{Value: leftVal / rightVal})
 	case code.OpEq:
 		if leftVal == rightVal {
-			return vm.push(TRUE)
+			return vm.push(object.TrueS)
 		} else {
-			return vm.push(FALSE)
+			return vm.push(object.FalseS)
 		}
 	case code.OpNeq:
 		if leftVal != rightVal {
-			return vm.push(TRUE)
+			return vm.push(object.TrueS)
 		} else {
-			return vm.push(FALSE)
+			return vm.push(object.FalseS)
 		}
 	case code.OpLessThan:
 		if leftVal < rightVal {
-			return vm.push(TRUE)
+			return vm.push(object.TrueS)
 		} else {
-			return vm.push(FALSE)
+			return vm.push(object.FalseS)
 		}
 	case code.OpLessThanEq:
 		if leftVal <= rightVal {
-			return vm.push(TRUE)
+			return vm.push(object.TrueS)
 		} else {
-			return vm.push(FALSE)
+			return vm.push(object.FalseS)
 		}
 	default:
 		return fmt.Errorf("unknown integer operator: %d", op)
@@ -437,15 +431,15 @@ func (vm *VM) executeBooleanBinaryOp(lhs, rhs object.Object, op code.Opcode) err
 	switch op {
 	case code.OpEq:
 		if lhs == rhs {
-			return vm.push(TRUE)
+			return vm.push(object.TrueS)
 		} else {
-			return vm.push(FALSE)
+			return vm.push(object.FalseS)
 		}
 	case code.OpNeq:
 		if lhs != rhs {
-			return vm.push(TRUE)
+			return vm.push(object.TrueS)
 		} else {
-			return vm.push(FALSE)
+			return vm.push(object.FalseS)
 		}
 	default:
 		return fmt.Errorf("unknown boolean operator: %d", op)
@@ -459,27 +453,27 @@ func (vm *VM) executeStringBinaryOp(lhs, rhs object.Object, op code.Opcode) erro
 	switch op {
 	case code.OpEq:
 		if leftVal == rightVal {
-			return vm.push(TRUE)
+			return vm.push(object.TrueS)
 		} else {
-			return vm.push(FALSE)
+			return vm.push(object.FalseS)
 		}
 	case code.OpNeq:
 		if leftVal != rightVal {
-			return vm.push(TRUE)
+			return vm.push(object.TrueS)
 		} else {
-			return vm.push(FALSE)
+			return vm.push(object.FalseS)
 		}
 	case code.OpLessThan:
 		if leftVal < rightVal {
-			return vm.push(TRUE)
+			return vm.push(object.TrueS)
 		} else {
-			return vm.push(FALSE)
+			return vm.push(object.FalseS)
 		}
 	case code.OpLessThanEq:
 		if leftVal <= rightVal {
-			return vm.push(TRUE)
+			return vm.push(object.TrueS)
 		} else {
-			return vm.push(FALSE)
+			return vm.push(object.FalseS)
 		}
 	case code.OpAdd:
 		return vm.push(&object.String{Value: leftVal + rightVal})
@@ -527,7 +521,7 @@ func (vm *VM) callFunction(numArgs int) error {
 		if result != nil {
 			vm.push(result)
 		} else {
-			vm.push(NULL)
+			vm.push(object.NullS)
 		}
 		return nil
 	default:
@@ -548,7 +542,9 @@ func (vm *VM) callFunctionViaJit(callee *object.Closure) (success bool) {
 		return false
 	}
 
-	jit.ExecMem(callee.Fn.JitInstructions.MachineCodeInstructions, vm.sp)
+	jit.ExecMem(callee, &vm.stack[vm.sp])
+	vm.sp -= callee.Fn.NumParameters
+	vm.stack[vm.sp] = vm.stack[vm.sp + callee.Fn.NumParameters]
 	return true
 }
 
@@ -557,7 +553,7 @@ func isTruthy(obj object.Object) bool {
 	case *object.Integer:
 		return obj.Value != 0
 	case *object.Boolean:
-		return obj != FALSE
+		return obj != object.FalseS
 	case *object.Null:
 		return false
 	default:

@@ -27,6 +27,13 @@ const (
 	CLOSURE           = "CLOSURE"
 )
 
+// singleton values shared between packages
+var (
+	TrueS  = &Boolean{Value: true}
+	FalseS = &Boolean{Value: false}
+	NullS  = &Null{}
+)
+
 type ObjectType string
 
 type Object interface {

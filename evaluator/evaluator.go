@@ -8,9 +8,6 @@ import (
 
 // singleton values
 var (
-	TRUE     = &object.Boolean{Value: true}
-	FALSE    = &object.Boolean{Value: false}
-	NULL     = &object.Null{}
 	BREAK    = &object.Break{}
 	CONTINUE = &object.Continue{}
 
@@ -51,12 +48,12 @@ func Evaluate(node ast.Node, env *object.Environment) object.Object {
 		return &object.String{Value: node.Value}
 	case *ast.BooleanLiteral:
 		if node.Value {
-			return TRUE
+			return object.TrueS
 		} else {
-			return FALSE
+			return object.FalseS
 		}
 	case *ast.NullLiteral:
-		return NULL
+		return object.NullS
 	case *ast.FunctionLiteral:
 		return &object.Function{Parameters: node.Parameters, Body: node.Body, Env: object.NewEnvironment(env)}
 	case *ast.ArrayLiteral:
@@ -123,7 +120,7 @@ func evaluateBlockStatement(block *ast.BlockStatement, env *object.Environment) 
 }
 
 func evaluateLetStatement(letStmt *ast.LetStatement, env *object.Environment) object.Object {
-	obj := object.Object(NULL)
+	obj := object.Object(object.NullS)
 	if letStmt.Rhs != nil {
 		obj = Evaluate(letStmt.Rhs, env)
 		if isError(obj) {
@@ -131,7 +128,7 @@ func evaluateLetStatement(letStmt *ast.LetStatement, env *object.Environment) ob
 		}
 	}
 	env.Set(letStmt.Identifier.Value, obj, true)
-	return NULL
+	return object.NullS
 }
 
 func evaluateAssignmentStatement(assignStmt *ast.AssignmentStatement, env *object.Environment) object.Object {
@@ -143,7 +140,7 @@ func evaluateAssignmentStatement(assignStmt *ast.AssignmentStatement, env *objec
 		return obj
 	}
 	env.Set(assignStmt.Identifier.Value, obj, true) // setIfAbsent = false allows us to modify in parent scope(s)
-	return NULL
+	return object.NullS
 }
 
 func evaluateIdentifier(id *ast.Identifier, env *object.Environment) object.Object {
@@ -188,7 +185,7 @@ func evaluateHashLiteral(hash *ast.HashLiteral, env *object.Environment) object.
 func evaluateBuiltinFunction(bf *ast.BuiltinFunction) object.Object {
 	obj := object.ExposeBuiltin(bf)
 	if obj.Type() == object.NULL {
-		return NULL
+		return object.NullS
 	}
 	return obj
 }
@@ -224,7 +221,7 @@ func evaluateCallExpression(callExpr *ast.CallExpression, env *object.Environmen
 		if result := fn(callArgs); result != nil {
 			return result
 		}
-		return NULL
+		return object.NullS
 	default:
 		return object.NewError("attempted function call from a non-function expression: %s", fn.Inspect())
 	}
@@ -273,7 +270,7 @@ func evaluateIndexAccess(idxAccess *ast.IndexAccess, env *object.Environment) ob
 	default:
 		return object.NewError("index is not a valid operation for type %T", container)
 	}
-	return NULL
+	return object.NullS
 }
 
 func evaluatePrefixExpression(operator string, rhs object.Object) object.Object {
@@ -307,9 +304,9 @@ func evaluateInfixExpression(operator string, lhs, rhs object.Object) object.Obj
 func evaluateBangOperatorExpression(rhs object.Object) object.Object {
 	rhsBool := castBoolean(rhs)
 	if rhsBool.Value {
-		return FALSE
+		return object.FalseS
 	} else {
-		return TRUE
+		return object.TrueS
 	}
 }
 
@@ -327,20 +324,20 @@ func castBoolean(obj object.Object) *object.Boolean {
 	switch obj := obj.(type) {
 	case *object.Integer:
 		if obj.Value == 0 {
-			return FALSE
+			return object.FalseS
 		} else {
-			return TRUE
+			return object.TrueS
 		}
 	case *object.String:
 		if obj.Value == "" {
-			return FALSE
+			return object.FalseS
 		} else {
-			return TRUE
+			return object.TrueS
 		}
 	case *object.Boolean:
 		return obj
 	}
-	return FALSE
+	return object.FalseS
 }
 
 func evaluateIntegerInfixExpression(operator string, lhs, rhs object.Object) object.Object {
@@ -358,39 +355,39 @@ func evaluateIntegerInfixExpression(operator string, lhs, rhs object.Object) obj
 		return &object.Integer{Value: leftValue / rightValue}
 	case token.EQ:
 		if leftValue == rightValue {
-			return TRUE
+			return object.TrueS
 		} else {
-			return FALSE
+			return object.FalseS
 		}
 	case token.NEQ:
 		if leftValue != rightValue {
-			return TRUE
+			return object.TrueS
 		} else {
-			return FALSE
+			return object.FalseS
 		}
 	case token.LT:
 		if leftValue < rightValue {
-			return TRUE
+			return object.TrueS
 		} else {
-			return FALSE
+			return object.FalseS
 		}
 	case token.GT:
 		if leftValue > rightValue {
-			return TRUE
+			return object.TrueS
 		} else {
-			return FALSE
+			return object.FalseS
 		}
 	case token.LTE:
 		if leftValue <= rightValue {
-			return TRUE
+			return object.TrueS
 		} else {
-			return FALSE
+			return object.FalseS
 		}
 	case token.GTE:
 		if leftValue >= rightValue {
-			return TRUE
+			return object.TrueS
 		} else {
-			return FALSE
+			return object.FalseS
 		}
 	default:
 		return object.NewError("unknown operator: %s %s %s",
@@ -404,15 +401,15 @@ func evaluateBooleanInfixExpression(operator string, lhs, rhs object.Object) obj
 	switch operator {
 	case token.EQ:
 		if lhs == rhs {
-			return TRUE
+			return object.TrueS
 		} else {
-			return FALSE
+			return object.FalseS
 		}
 	case token.NEQ:
 		if lhs != rhs {
-			return TRUE
+			return object.TrueS
 		} else {
-			return FALSE
+			return object.FalseS
 		}
 	default:
 		return object.NewError("unknown operator: %s %s %s",
@@ -456,7 +453,7 @@ func evaluateIfExpression(ifExpr *ast.IfExpression, env *object.Environment) obj
 	} else if ifExpr.Alternative != nil {
 		return Evaluate(ifExpr.Alternative, env)
 	}
-	return NULL
+	return object.NullS
 }
 
 func evaluateForStatement(forStmt *ast.ForStatement, env *object.Environment) object.Object {
@@ -467,11 +464,11 @@ func evaluateForStatement(forStmt *ast.ForStatement, env *object.Environment) ob
 		}
 
 		if !isTruthy(condition) {
-			return NULL
+			return object.NullS
 		}
 		bodyEval := Evaluate(forStmt.Body, env)
 		if bodyEval == BREAK {
-			return NULL
+			return object.NullS
 		}
 		switch bodyEval.(type) {
 		case *object.ReturnValue, *object.Error:
@@ -479,11 +476,11 @@ func evaluateForStatement(forStmt *ast.ForStatement, env *object.Environment) ob
 		}
 	}
 
-	return NULL
+	return object.NullS
 }
 
 func isTruthy(obj object.Object) bool {
-	return castBoolean(obj) != FALSE
+	return castBoolean(obj) != object.FalseS
 }
 
 func isError(obj object.Object) bool {

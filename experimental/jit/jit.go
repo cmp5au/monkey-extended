@@ -3,14 +3,11 @@
 package jit
 
 import (
-	"fmt"
-
 	"github.com/cmp5au/monkey-extended/object"
 )
 
-func JitCompileFunctions(constants []object.Object) {
-	fmt.Println("Not on darwin_arm64")
-	return
-}
+func JitCompileFunctions(constants []object.Object) {}
 
-func ExecMem(mem []byte, sp uintptr) {}
+func ExecMem(cl *object.Closure, sp *int) {}
+
+func execMemInner(mem []byte, sp uintptr) {}

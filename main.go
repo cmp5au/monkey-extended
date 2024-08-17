@@ -16,13 +16,13 @@ import (
 )
 
 const USAGE = `USAGE:
-monkey-extended [(-e | --engine) <engine>]
+monkey-extended [(-e | --engine) <engine>] [-j | --jit-enabled]
 	start REPL using the desired engine
-monkey-extended [(-e | --engine) <engine>] [(-o | --out) <outfile>] <monkeyfile>
+monkey-extended [(-e | --engine) <engine>] [(-o | --out) <outfile>] [-j | --jit-enabled] <monkeyfile>
 	evaluate the input monkeyfile using the engine of choice
-	if -o,--out option is provided, engine must be "vm"
+	if -o,--out option is provided, engine must be "vm" and -j,--jit-enabled does nothing
 	if file extension is not .koko, this option is the default unless additional flags are provided
-monkey-extended [-k | --koko] <kokofile>
+monkey-extended [-k | --koko] [-j | --jit-enabled] <kokofile>
 	interpret the koko bytecode and run the program within
 	if file extension is .koko, this option is the default unless additional flags are provided`
 
@@ -30,6 +30,7 @@ var (
 	engine      string
 	outFilePath string
 	koko        bool
+	jitEnabled  bool
 )
 
 func main() {
@@ -39,6 +40,8 @@ func main() {
 	flag.StringVar(&outFilePath, "o", "", "location to write compiled Monkey bytecode (shorthand)")
 	flag.BoolVar(&koko, "koko", false, "forces program to use VM to run input file contents as if it were Koko bytecode")
 	flag.BoolVar(&koko, "k", false, "forces program to use VM to run input file contents as if it were Koko bytecode (shorthand)")
+	flag.BoolVar(&jitEnabled, "jit-enabled", false, "enables experimental JIT compiler")
+	flag.BoolVar(&jitEnabled, "j", false, "enables experimental JIT compiler (shorthand)")
 	flag.Parse()
 	args := flag.Args()
 
@@ -94,7 +97,7 @@ func main() {
 				fmt.Printf("unable to deserialize koko bytecode, could only read %d/%d bytes\n", n, len(kokoBuffer))
 				return
 			}
-			machine := vm.New(bytecode, false)
+			machine := vm.New(bytecode, jitEnabled)
 			if err = machine.Run(); err != nil {
 				fmt.Printf("vm error: %s\n", err)
 			}
@@ -145,7 +148,7 @@ func main() {
 			return
 		}
 
-		machine := vm.New(c.Bytecode(), false)
+		machine := vm.New(c.Bytecode(), jitEnabled)
 		if err = machine.Run(); err != nil {
 			fmt.Printf("vm error: %s\n", err)
 		}

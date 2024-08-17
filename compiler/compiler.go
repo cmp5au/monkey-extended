@@ -345,6 +345,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 			Instructions:  instructions,
 			NumLocals:     numLocals,
 			NumParameters: len(node.Parameters),
+			JitInstructions: &object.JitInstructions{},
 		}
 		c.emit(code.OpClosure, c.addConstant(compiledFn), len(freeSymbols))
 	case *ast.ReturnStatement:

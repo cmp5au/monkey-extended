@@ -50,6 +50,7 @@ func (c *CompiledFunction) Deserialize(bs []byte) int {
 	c.Instructions = code.Instructions(bs[9 : 9+int(instructionsLen)])
 	c.NumLocals = int(numLocals)
 	c.NumParameters = int(numParameters)
+	c.JitInstructions = &JitInstructions{}
 
 	return 25 + int(instructionsLen)
 }

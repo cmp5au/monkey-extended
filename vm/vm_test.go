@@ -58,14 +58,14 @@ func TestConditionals(t *testing.T) {
 		{"if (true) { 10 }", 10},
 		{"if (true) { 10 } else { 20 }", 10},
 		{"if (false) { 10 } else { 20 }", 20},
-		{"if (false) { 10 }", NULL},
+		{"if (false) { 10 }", object.NullS},
 		{"if (1 < 2) { 10 }", 10},
 		{"if (1 < 2) { 10 } else { 20 }", 10},
 		{"if (1 > 2) { 10 } else { 20 }", 20},
-		{"if (1 > 2) { 10 }", NULL},
+		{"if (1 > 2) { 10 }", object.NullS},
 		{"if (1) { 10 }", 10},
-		{"if (0) { 10 }", NULL},
-		{"if (null) { 1 } else { null }", NULL},
+		{"if (0) { 10 }", object.NullS},
+		{"if (null) { 1 } else { null }", object.NullS},
 	}
 
 	runVmTests(t, tests)
@@ -73,9 +73,9 @@ func TestConditionals(t *testing.T) {
 
 func TestGlobalLetStatements(t *testing.T) {
 	tests := []vmTestCase{
-		{"let one;", NULL},
-		{"let one; one", NULL},
-		{"let one = 1;", NULL},
+		{"let one;", object.NullS},
+		{"let one; one", object.NullS},
+		{"let one = 1;", object.NullS},
 		{"let one = 1; one", 1},
 		{"let one = 1; let two = 2; one + two", 3},
 		{"let one = 1; let two = one + one; one + two", 3},
@@ -240,7 +240,7 @@ func TestFunctions(t *testing.T) {
 		},
 		{
 			input:    `fn(){}()`,
-			expected: NULL,
+			expected: object.NullS,
 		},
 	}
 
@@ -300,13 +300,13 @@ func TestBuiltinFunctions(t *testing.T) {
 		},
 		{`len([1, 2, 3])`, 3},
 		{`len([])`, 0},
-		{`puts("hello, world!")`, NULL},
+		{`puts("hello, world!")`, object.NullS},
 		{`push([], 1)`, []int{1}},
 		{`push(1, 1)`, &object.Error{"first argument to push() must be an array"}},
 		{`let arr = [1, 2, 3]; pop(arr); arr;`, []int{1, 2}},
-		{`let arr = [1, 2, 3]; del(arr, 1);`, NULL},
+		{`let arr = [1, 2, 3]; del(arr, 1);`, object.NullS},
 		{`let arr = [1, 2, 3]; del(arr, 1); arr;`, []int{1, 3}},
-		{`let hash = {"a": 1, true: 2}; del(hash, "a");`, NULL},
+		{`let hash = {"a": 1, true: 2}; del(hash, "a");`, object.NullS},
 		{
 			input: `let hash = {"a": 1, true: 2}; del(hash, true); hash`,
 			expected: map[string]object.Object{
@@ -613,7 +613,7 @@ func testExpectedObject(t *testing.T, expected interface{}, actual object.Object
 			t.Errorf("testHashObject failed: %s", err)
 		}
 	case *object.Null:
-		if actual != NULL {
+		if actual != object.NullS {
 			t.Errorf("object is not Null: %T (%+v)", actual, actual)
 		}
 	case *object.Error:

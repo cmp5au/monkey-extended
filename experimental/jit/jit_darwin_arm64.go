@@ -9,7 +9,7 @@ import (
 	"github.com/cmp5au/monkey-extended/object"
 )
 
-func JitCompileFunctions(constants []object.Object) {
+func JitCompileFunctions(constants []object.Object, done chan struct{}) {
 	// if we imagine program's call structure as a trie, the functions are listed
 	// in Bytecode.Constants in postfix order: the same order we'd like to JIT compile
 	fmt.Println("Starting JIT compiler...")
@@ -18,6 +18,7 @@ func JitCompileFunctions(constants []object.Object) {
 			mustJitCompile(fn)
 		}
 	}
+	done <- struct{}{}
 }
 
 // TODO: add defer recover with logging to harden this
@@ -87,11 +88,11 @@ func compileInstructions(fn *object.CompiledFunction) []byte {
 			// TODO: fix the memory corruption this is causing vm.sp
 			// 0x23, 0x00, 0x00, 0xf9, // str x3, [x1]
 			// 0x24, 0x04, 0x00, 0xf9, // str x4, [x1, #8]
-			0x60, 0x02, 0x1f, 0xd6, // br x19
 		}
 
 		machineInstructions := append(movInsPtr, movInsData...)
 		machineInstructions = append(machineInstructions, storeInstructions...)
+		machineInstructions = append(machineInstructions, []byte{0x60, 0x02, 0x1f, 0xd6}...) // br x19
 		return machineInstructions
 	}
 	return nil

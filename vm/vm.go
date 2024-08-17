@@ -73,8 +73,10 @@ func (vm *VM) Run() error {
 	var ins code.Instructions
 	var op code.Opcode
 
+	var done chan struct{}
 	if vm.jitEnabled {
-		jit.JitCompileFunctions(vm.constants)
+		done = make(chan struct{})
+		go jit.JitCompileFunctions(vm.constants, done)
 	}
 
 	for vm.currentFrame().ip < len(vm.currentFrame().Instructions())-1 {
@@ -321,6 +323,10 @@ func (vm *VM) Run() error {
 				return err
 			}
 		}
+	}
+
+	if vm.jitEnabled {
+		<-done
 	}
 
 	return nil
